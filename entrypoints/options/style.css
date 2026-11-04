@@ -1,0 +1,1 @@
+body { max-width: 620px; margin: 40px auto; padding: 0 20px; color: #252a34; font: 16px/1.5 system-ui, sans-serif; } h1 { font-size: 24px; } label { display: block; margin: 20px 0 8px; } input, select { display: block; box-sizing: border-box; width: 100%; max-width: 520px; margin-top: 6px; padding: 7px; } button { margin: 8px 8px 8px 0; padding: 8px 12px; }
