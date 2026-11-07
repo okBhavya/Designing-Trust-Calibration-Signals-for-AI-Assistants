@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     session_signing_secret: str = "development-only-change-this-secret-32chars"
     session_ttl_seconds: int = Field(default=900, ge=60, le=86_400)
     enrollment_secret: str = "development-enrollment-secret-change-me"
+    signal_provider: Literal["mock", "reliability_fixture"] = "mock"
+    evidence_fixture_dir: str = "data/evidence_fixtures"
+    evidence_fixture_path: str | None = None
+    store_raw_conversation: bool = False
 
     @field_validator("api_origins", mode="before")
     @classmethod
@@ -39,6 +43,10 @@ class Settings(BaseSettings):
                 raise RuntimeError("Production requires CALIBRAI_SESSION_SIGNING_SECRET")
             if self.enrollment_secret == "development-enrollment-secret-change-me":
                 raise RuntimeError("Production requires CALIBRAI_ENROLLMENT_SECRET")
+            if self.signal_provider == "reliability_fixture":
+                raise RuntimeError("Production cannot use the reliability fixture provider")
+        if self.environment.lower() in {"production", "participant", "study"} and self.store_raw_conversation:
+            raise RuntimeError("Raw conversation storage is disabled in participant-facing environments")
 
 
 @lru_cache
