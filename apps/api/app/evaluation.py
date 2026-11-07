@@ -105,3 +105,25 @@ def classification_metrics(
         accuracy=sum(left == right for left, right in zip(actual, predicted)) / len(actual),
         confusion=confusion,
     )
+
+def binary_auroc(actual: Sequence[int], scores: Sequence[float]) -> float:
+    _require_equal_length(actual, scores)
+    if any(value not in (0, 1) for value in actual):
+        raise ValueError("AUROC labels must be binary 0/1")
+    if any(not isfinite(value) for value in scores):
+        raise ValueError("AUROC scores must be finite")
+    positives = sum(actual)
+    negatives = len(actual) - positives
+    if not positives or not negatives:
+        raise ValueError("AUROC requires both positive and negative observations")
+    ordered = sorted(zip(scores, actual))
+    rank_sum = 0.0
+    index = 0
+    while index < len(ordered):
+        end = index + 1
+        while end < len(ordered) and ordered[end][0] == ordered[index][0]:
+            end += 1
+        average_rank = (index + 1 + end) / 2
+        rank_sum += average_rank * sum(label for _, label in ordered[index:end])
+        index = end
+    return (rank_sum - positives * (positives + 1) / 2) / (positives * negatives)
