@@ -42,3 +42,15 @@ def test_reliability_fixture_is_rejected_in_production(monkeypatch):
     monkeypatch.setattr(settings, "signal_provider", "reliability_fixture")
     with pytest.raises(RuntimeError, match="fixture provider"):
         settings.validate_deployment_security()
+
+
+def test_missing_evidence_fixture_is_explicitly_unavailable():
+    from app.services.reliability_service import FixtureEvidenceRetriever, ProviderUnavailableError
+    with pytest.raises(ProviderUnavailableError):
+        FixtureEvidenceRetriever("missing-evidence-fixture.json")
+
+
+def test_fixture_path_cannot_escape_configured_directory(tmp_path):
+    from app.services.reliability_service import resolve_fixture_path, ProviderUnavailableError
+    with pytest.raises(ProviderUnavailableError, match="outside"):
+        resolve_fixture_path("..\\secrets.json", str(tmp_path / "fixtures"))
