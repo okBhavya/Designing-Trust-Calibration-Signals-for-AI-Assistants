@@ -1,30 +1,41 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.auth import AuthenticatedSession, require_session
-from app.core.exceptions import ApiError
-from app.core.rate_limit import rate_limit
+from app.api.dependencies import get_current_session, rate_limit
+from app.core.errors import ApiError
 from app.database.connection import get_db
 from app.database.models import LiveSignal
 from app.schemas.signal import SignalRequest, SignalResponse
 from app.services.consent_service import require_capture_consent
+from app.services.reliability_service import ProviderUnavailableError
 from app.services.signal_service import MockSignalProvider, SignalProvider
+from app.config import get_settings
 
 router = APIRouter(prefix="/v1")
-provider: SignalProvider = MockSignalProvider()
+
+
+def get_provider() -> SignalProvider:
+    settings = get_settings()
+    if settings.signal_provider == "reliability_fixture":
+        from app.services.reliability_service import ReliabilityFixtureProvider
+        return ReliabilityFixtureProvider()
+    if settings.signal_provider == "mock":
+        return MockSignalProvider()
+    raise ProviderUnavailableError("Configured signal provider is unavailable")
 
 
 @router.post("/signal", response_model=SignalResponse, dependencies=[Depends(rate_limit)])
 def signal(
     request: SignalRequest,
-    session: AuthenticatedSession = Depends(require_session),
+    session=Depends(get_current_session),
     db: Session = Depends(get_db),
-) -> SignalResponse:
+):
     if session.participant_id != request.participant_id:
         raise ApiError(403, "Participant does not match authenticated session")
     participant = require_capture_consent(db, request.participant_id)
-    result = provider.evaluate(request)
+    result = get_provider().evaluate(request)
     record = LiveSignal(
         participant_id=participant.id,
         session_id=request.session_id,
@@ -36,11 +47,6 @@ def signal(
         model_version=result.model_version,
     )
     db.add(record)
-    try:
-        db.commit()
-    except IntegrityError as error:
-        db.rollback()
-        if "live_signals.participant_id" in str(error) or "uq_live_signal_participant_hash" in str(error):
-            raise ApiError(409, "A signal already exists for this answer") from error
-        raise
+    db.commit()
+    db.refresh(record)
     return result
