@@ -1,10 +1,40 @@
 from __future__ import annotations
 
+import hashlib
+import json
+import re
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from time import perf_counter
+from typing import Protocol
+
+from app.config import get_settings
+from app.schemas.signal import (
+    ClaimAssessment,
+    SentenceFlag,
+    SignalRequest,
+    SignalResponse,
+)
+
+MAX_CLAIMS = 8
+MATERIALITY_WEIGHTS = {"high": 3, "medium": 2, "low": 1}
+FACTUAL_TYPES = {"factual", "quantitative", "temporal", "causal", "attribution", "definition"}
+
+
 class ProviderUnavailableError(RuntimeError):
     pass
 
-import re
-from dataclasses import dataclass
+
+def resolve_fixture_path(path: str | None, fixture_dir: str) -> Path | None:
+    if path is None:
+        return None
+    root = Path(fixture_dir).expanduser().resolve()
+    candidate = (root / path).resolve()
+    if candidate != root and root not in candidate.parents:
+        raise ProviderUnavailableError("Evidence fixture path is outside the configured fixture directory")
+    return candidate
+
 
 @dataclass(frozen=True)
 class Sentence:
@@ -12,8 +42,51 @@ class Sentence:
     text: str
     is_code: bool = False
 
+
+@dataclass(frozen=True)
+class Claim:
+    claim_id: str
+    text: str
+    sentence_index: int
+    claim_type: str
+    materiality: str
+    time_sensitive: bool
+
+
+@dataclass(frozen=True)
+class EvidenceSource:
+    source_id: str
+    url: str
+    title: str
+    publisher: str
+    domain: str
+    retrieved_at: str
+    published_at: str | None
+    snippet: str
+    relevance_score: float
+    quality: float
+    independence_group: str
+
+
+@dataclass(frozen=True)
+class Verification:
+    claim: Claim
+    outcome: str
+    evidence_strength: str
+    uncertainty: float
+    supporting: tuple[EvidenceSource, ...]
+    contradicting: tuple[EvidenceSource, ...]
+    explanation: str
+
+
+class EvidenceRetriever(Protocol):
+    def retrieve(self, claim: Claim) -> tuple[EvidenceSource, ...]:
+        ...
+
+
 def _normalize(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip().lower()
+
 
 def normalize_answer(answer: str) -> tuple[Sentence, ...]:
     text = answer.replace("\r\n", "\n").replace("\r", "\n").strip()
@@ -52,20 +125,6 @@ def normalize_answer(answer: str) -> tuple[Sentence, ...]:
                 split.append(Sentence(len(split), part.strip()))
     return tuple(split)
 
-import hashlib
-
-MAX_CLAIMS = 8
-MATERIALITY_WEIGHTS = {"high": 3, "medium": 2, "low": 1}
-FACTUAL_TYPES = {"factual", "quantitative", "temporal", "causal", "attribution", "definition"}
-
-@dataclass(frozen=True)
-class Claim:
-    claim_id: str
-    text: str
-    sentence_index: int
-    claim_type: str
-    materiality: str
-    time_sensitive: bool
 
 def extract_claims(sentences: tuple[Sentence, ...]) -> tuple[Claim, ...]:
     candidates: list[Claim] = []
@@ -85,85 +144,56 @@ def extract_claims(sentences: tuple[Sentence, ...]) -> tuple[Claim, ...]:
     candidates.sort(key=lambda claim: ({"high": 0, "medium": 1, "low": 2}[claim.materiality], claim.sentence_index))
     return tuple(candidates[:MAX_CLAIMS])
 
-import json
-from pathlib import Path
-from typing import Protocol
-
-def resolve_fixture_path(path: str | None, fixture_dir: str) -> Path | None:
-    if path is None:
-        return None
-    root = Path(fixture_dir).expanduser().resolve()
-    candidate = (root / path).resolve()
-    if candidate != root and root not in candidate.parents:
-        raise ProviderUnavailableError("Evidence fixture path is outside the configured fixture directory")
-    return candidate
-
-@dataclass(frozen=True)
-class EvidenceSource:
-    source_id: str
-    url: str
-    title: str
-    publisher: str
-    domain: str
-    retrieved_at: str
-    published_at: str | None
-    snippet: str
-    relevance_score: float
-    quality: float
-    independence_group: str
-
-class EvidenceRetriever(Protocol):
-    def retrieve(self, claim: Claim) -> tuple[EvidenceSource, ...]:
-        ...
 
 class FixtureEvidenceRetriever:
-    def __init__(self, fixture_path: str | Path | None = None, *, fixture_dir: str = "data/evidence_fixtures", records: list[dict] | None = None):
-        self.records = records if records is not None else self._load(fixture_path, fixture_dir)
+    """Loads only explicitly configured evidence; it never invents citations."""
 
-    def _load(self, fixture_path: str | Path | None, fixture_dir: str) -> list[dict]:
-        if not fixture_path:
-            return []
-        resolved = resolve_fixture_path(str(fixture_path), fixture_dir)
-        if not resolved or not resolved.exists():
-            raise ProviderUnavailableError(f"Evidence fixture not found: {fixture_path}")
-        return json.loads(resolved.read_text(encoding="utf-8"))
+    def __init__(
+        self,
+        path: str | None = None,
+        records: list[dict] | None = None,
+        fixture_dir: str | None = None,
+    ):
+        if records is not None:
+            self.records = records
+        elif path:
+            path = str(resolve_fixture_path(path, fixture_dir or get_settings().evidence_fixture_dir))
+            try:
+                self.records = json.loads(Path(path).read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as error:
+                raise ProviderUnavailableError("Evidence fixture is unavailable") from error
+        else:
+            self.records = []
 
     def retrieve(self, claim: Claim) -> tuple[EvidenceSource, ...]:
-        claim_norm = _normalize(claim.text)
+        target = _normalize(claim.text)
         results: list[EvidenceSource] = []
         for record in self.records:
-            record_norm = _normalize(record.get("claim", ""))
-            overlap = set(claim_norm.split()) & set(record_norm.split())
-            if record_norm in claim_norm or claim_norm in record_norm or len(overlap) >= 3:
-                results.append(
-                    EvidenceSource(
-                        source_id=record["sourceId"],
-                        url=record["url"],
-                        title=record.get("title", ""),
-                        publisher=record.get("publisher", ""),
-                        domain=record.get("domain", ""),
-                        retrieved_at=record.get("retrievedAt", ""),
-                        published_at=record.get("publishedAt"),
-                        snippet=record.get("snippet", ""),
-                        relevance_score=float(record.get("relevanceScore", 1.0)),
-                        quality=float(record.get("quality", 1.0)),
-                        independence_group=record.get("independenceGroup", record.get("domain", record["sourceId"])),
-                    )
+            if _normalize(str(record.get("claim", ""))) != target:
+                continue
+            url = str(record.get("url", ""))
+            if not url.startswith(("https://", "http://")):
+                continue
+            results.append(
+                EvidenceSource(
+                    source_id=str(record["sourceId"]),
+                    url=url,
+                    title=str(record.get("title", "")),
+                    publisher=str(record.get("publisher", "")),
+                    domain=str(record.get("domain", "")),
+                    retrieved_at=str(record.get("retrievedAt") or datetime.now(timezone.utc).isoformat()),
+                    published_at=record.get("publishedAt"),
+                    snippet=str(record.get("snippet", "")),
+                    relevance_score=float(record.get("relevanceScore", 0)),
+                    quality=float(record.get("quality", 0)),
+                    independence_group=str(record.get("independenceGroup") or record.get("domain", "")),
                 )
+            )
         unique: dict[tuple[str, str], EvidenceSource] = {}
         for source in results:
             unique[(source.independence_group, source.url)] = source
         return tuple(unique.values())
 
-@dataclass(frozen=True)
-class Verification:
-    claim: Claim
-    outcome: str
-    evidence_strength: str
-    uncertainty: float
-    supporting: tuple[EvidenceSource, ...]
-    contradicting: tuple[EvidenceSource, ...]
-    explanation: str
 
 def verify_claim(claim: Claim, sources: tuple[EvidenceSource, ...]) -> Verification:
     supporting = tuple(source for source in sources if source.relevance_score > 0 and source.quality >= 0.6)
@@ -176,6 +206,7 @@ def verify_claim(claim: Claim, sources: tuple[EvidenceSource, ...]) -> Verificat
     if contradicting:
         return Verification(claim, "contradicted", "strong", 0.2, (), contradicting, "Evidence contradicts this claim.")
     return Verification(claim, "insufficient_evidence", "none", 1.0, (), (), "No sufficient evidence was available.")
+
 
 def aggregate(verifications: tuple[Verification, ...]) -> tuple[str, str, float]:
     if not verifications:
@@ -197,9 +228,6 @@ def aggregate(verifications: tuple[Verification, ...]) -> tuple[str, str, float]
         return "medium", "Evidence supports some claims, but uncertainty remains.", score
     return "low", "Evidence indicates that important claims are not reliable.", score
 
-from time import perf_counter
-from app.config import get_settings
-from app.schemas.signal import ClaimAssessment, SentenceFlag, SignalRequest, SignalResponse
 
 class ReliabilityFixtureProvider:
     def __init__(self, retriever: EvidenceRetriever | None = None):
@@ -211,7 +239,14 @@ class ReliabilityFixtureProvider:
 
     def evaluate(self, request: SignalRequest) -> SignalResponse:
         started = perf_counter()
-        claims = extract_claims(normalize_answer(request.answer or ""))
+        if not request.answer:
+            return SignalResponse(
+                confidence=None, assessmentState="unavailable", score=0,
+                explanation="An answer was not available for evaluation.",
+                modelVersion="reliability-fixture-v1",
+                processingLatencyMs=0,
+            )
+        claims = extract_claims(normalize_answer(request.answer))
         verifications = tuple(verify_claim(claim, self.retriever.retrieve(claim)) for claim in claims)
         state, explanation, score = aggregate(verifications)
         confidence = state if state in {"high", "medium", "low"} else None
