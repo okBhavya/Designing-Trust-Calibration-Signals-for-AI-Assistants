@@ -31,9 +31,16 @@ class SentenceFlag(BaseModel):
 
 
 class ClaimAssessment(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    claim_id: str | None = Field(default=None, alias="claimId")
     claim: str = Field(min_length=1, max_length=2_000)
     assessment: str = Field(min_length=1, max_length=100)
     confidence: Confidence
+    evidence_strength: str | None = Field(default=None, alias="evidenceStrength")
+    uncertainty: float | None = Field(default=None, ge=0, le=1)
+    supporting_source_ids: list[str] = Field(default_factory=list, alias="supportingSourceIds")
+    contradicting_source_ids: list[str] = Field(default_factory=list, alias="contradictingSourceIds")
 
 
 class SignalResponse(BaseModel):
