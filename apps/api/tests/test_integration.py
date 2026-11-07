@@ -73,3 +73,45 @@ def test_session_failure_paths_and_associated_records_are_rejected(client, auth_
         },
         headers=headers,
     ).status_code == 401
+
+
+def test_reliability_fixture_provider_is_feature_flagged_and_does_not_store_raw_content(
+    client, auth_headers, monkeypatch
+):
+    from app.config import get_settings
+    from app.database.models import LiveSignal
+    from app.database.connection import get_db
+
+    participant_id = uuid4()
+    headers = auth_headers(participant_id)
+    assert client.post(
+        "/v1/consent",
+        json={
+            "participant_id": str(participant_id),
+            "consent_version": "test-consent",
+            "status": "granted",
+        },
+        headers=headers,
+    ).status_code == 200
+    monkeypatch.setattr(get_settings(), "signal_provider", "reliability_fixture")
+    payload = {
+        "participant_id": str(participant_id),
+        "platform": "chatgpt",
+        "answer_hash": "d" * 64,
+        "prompt": "What is the moon made of?",
+        "answer": "The moon is made of cheese.",
+    }
+    response = client.post("/v1/signal", json=payload, headers=headers)
+    assert response.status_code == 200
+    assert response.json()["assessmentState"] == "insufficient_evidence"
+    assert response.json()["claimAssessments"][0]["assessment"] == "insufficient_evidence"
+
+    db = next(client.app.dependency_overrides[get_db]())
+    try:
+        record = db.query(LiveSignal).filter_by(participant_id=participant_id).one()
+        assert record.prompt is None
+        assert record.answer is None
+        assert "moon" not in str(record.response_json).lower()
+        assert all("claim" not in assessment for assessment in record.response_json["claimAssessments"])
+    finally:
+        db.close()
