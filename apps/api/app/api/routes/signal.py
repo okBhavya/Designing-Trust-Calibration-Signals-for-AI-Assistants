@@ -35,7 +35,17 @@ def signal(
     if session.participant_id != request.participant_id:
         raise ApiError(403, "Participant does not match authenticated session")
     participant = require_capture_consent(db, request.participant_id)
-    result = get_provider().evaluate(request)
+    try:
+        result = get_provider().evaluate(request)
+    except ProviderUnavailableError:
+        result = SignalResponse(
+            confidence=None,
+            assessmentState="unavailable",
+            score=0,
+            explanation="Evidence evaluation is temporarily unavailable.",
+            modelVersion="reliability-unavailable-v1",
+            processingLatencyMs=0,
+        )
     record = LiveSignal(
         participant_id=participant.id,
         session_id=request.session_id,
