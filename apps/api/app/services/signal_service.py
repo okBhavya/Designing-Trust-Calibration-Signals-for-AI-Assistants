@@ -25,6 +25,7 @@ class MockSignalProvider(SignalProvider):
         return SignalResponse(
             confidence=confidence,
             score=score,
+            assessmentState="abstained",
             explanation=explanation,
             modelVersion="mock-v1",
             processingLatencyMs=max(0, round((perf_counter() - started) * 1000)),
