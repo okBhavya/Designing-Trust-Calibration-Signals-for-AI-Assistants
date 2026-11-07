@@ -196,3 +196,54 @@ def aggregate(verifications: tuple[Verification, ...]) -> tuple[str, str, float]
     if score >= 0.6:
         return "medium", "Evidence supports some claims, but uncertainty remains.", score
     return "low", "Evidence indicates that important claims are not reliable.", score
+
+from time import perf_counter
+from app.config import get_settings
+from app.schemas.signal import ClaimAssessment, SentenceFlag, SignalRequest, SignalResponse
+
+class ReliabilityFixtureProvider:
+    def __init__(self, retriever: EvidenceRetriever | None = None):
+        settings = get_settings()
+        self.retriever = retriever or FixtureEvidenceRetriever(
+            settings.evidence_fixture_path,
+            fixture_dir=settings.evidence_fixture_dir,
+        )
+
+    def evaluate(self, request: SignalRequest) -> SignalResponse:
+        started = perf_counter()
+        claims = extract_claims(normalize_answer(request.answer or ""))
+        verifications = tuple(verify_claim(claim, self.retriever.retrieve(claim)) for claim in claims)
+        state, explanation, score = aggregate(verifications)
+        confidence = state if state in {"high", "medium", "low"} else None
+        flags = [
+            SentenceFlag(
+                sentence_index=item.claim.sentence_index,
+                label=item.outcome,
+                explanation=item.explanation,
+                claim_ids=[item.claim.claim_id],
+            )
+            for item in verifications
+        ]
+        assessments = [
+            ClaimAssessment(
+                claim_id=item.claim.claim_id,
+                claim=item.claim.text,
+                assessment=item.outcome,
+                confidence="high" if item.uncertainty < 0.3 else "medium" if item.uncertainty < 0.7 else "low",
+                evidence_strength=item.evidence_strength,
+                uncertainty=item.uncertainty,
+                supporting_source_ids=[source.source_id for source in item.supporting],
+                contradicting_source_ids=[source.source_id for source in item.contradicting],
+            )
+            for item in verifications
+        ]
+        return SignalResponse(
+            confidence=confidence,
+            assessmentState=state,
+            score=score,
+            sentenceFlags=flags,
+            claimAssessments=assessments,
+            explanation=explanation,
+            modelVersion="reliability-fixture-v1",
+            processingLatencyMs=max(0, round((perf_counter() - started) * 1000)),
+        )
