@@ -1,4 +1,9 @@
 export type ConfidenceLevel = 'high' | 'medium' | 'low';
+export type AssessmentState =
+  | ConfidenceLevel
+  | 'insufficient_evidence'
+  | 'unavailable'
+  | 'abstained';
 export type SignalStatus =
   | 'checking'
   | 'signal'
@@ -21,9 +26,24 @@ export type PlatformId = 'chatgpt' | 'claude' | 'gemini';
 export interface SignalResponse {
   status: SignalStatus;
   confidence?: ConfidenceLevel;
+  assessmentState?: AssessmentState;
   score?: number;
-  sentenceFlags?: Array<{ sentenceIndex: number; label: string; explanation?: string }>;
-  claimAssessments?: Array<{ claim: string; assessment: string; confidence: ConfidenceLevel }>;
+  sentenceFlags?: Array<{
+    sentenceIndex: number;
+    label: string;
+    explanation?: string;
+    claimIds?: string[];
+  }>;
+  claimAssessments?: Array<{
+    claimId?: string;
+    claim: string;
+    assessment: string;
+    confidence: ConfidenceLevel;
+    evidenceStrength?: string;
+    uncertainty?: number;
+    supportingSourceIds?: string[];
+    contradictingSourceIds?: string[];
+  }>;
   explanation?: string;
   modelVersion: string;
   processingLatencyMs?: number;
