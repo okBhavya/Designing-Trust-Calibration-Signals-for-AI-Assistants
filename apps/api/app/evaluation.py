@@ -155,3 +155,20 @@ def calibration_metrics(
     ece = sum(count * error for count, error in zip(counts, bucket_errors)) / len(actual)
     brier = sum((probability - outcome) ** 2 for probability, outcome in zip(probabilities, actual)) / len(actual)
     return CalibrationMetrics(ece=ece, brier=brier, bin_counts=tuple(counts))
+
+def risk_coverage(
+    correct: Sequence[bool],
+    confidence: Sequence[float],
+) -> tuple[RiskCoveragePoint, ...]:
+    _require_equal_length(correct, confidence)
+    if any(not isinstance(value, bool) for value in correct):
+        raise ValueError("Correctness values must be bool")
+    if any(not isfinite(value) or value < 0 or value > 1 for value in confidence):
+        raise ValueError("Confidence values must be in [0, 1]")
+    ordered = sorted(zip(confidence, correct), key=lambda item: item[0], reverse=True)
+    points: list[RiskCoveragePoint] = []
+    errors = 0
+    for count, (threshold, is_correct) in enumerate(ordered, start=1):
+        errors += not is_correct
+        points.append(RiskCoveragePoint(count / len(ordered), errors / count, threshold))
+    return tuple(points)
