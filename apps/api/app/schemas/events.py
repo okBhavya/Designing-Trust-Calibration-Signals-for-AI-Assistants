@@ -1,7 +1,7 @@
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.schemas.signal import Platform, AnswerHash
 
@@ -18,6 +18,16 @@ class EventRequest(BaseModel):
     session_id: UUID | None = None
     trial_id: UUID | None = None
     metadata: dict[str, str] = Field(default_factory=dict, max_length=20)
+
+    @field_validator("metadata")
+    @classmethod
+    def validate_metadata(cls, value: dict[str, str]) -> dict[str, str]:
+        forbidden = {"prompt", "answer", "conversation", "response", "token", "secret"}
+        if any(key.lower() in forbidden for key in value):
+            raise ValueError("Raw conversation and credential metadata are not accepted")
+        if any(len(key) > 64 or len(item) > 256 for key, item in value.items()):
+            raise ValueError("Metadata keys and values are too long")
+        return value
 
 
 class EventResponse(BaseModel):
