@@ -105,3 +105,11 @@ def test_aggregation_uses_frozen_sixty_percent_low_threshold():
     state, _, score = aggregate(verifications)
     assert score == pytest.approx(4 / 7)
     assert state == "low"
+
+
+def test_reliability_pipeline_preserves_sentence_indices_and_claim_cap():
+    from app.services.reliability_service import normalize_answer, extract_claims
+    sentences = normalize_answer("First fact. Second fact.\n```python\nx = 1\n```")
+    claims = extract_claims(sentences)
+    assert [claim.sentence_index for claim in claims] == [0, 1]
+    assert all(claim.sentence_index >= 0 for claim in claims)
