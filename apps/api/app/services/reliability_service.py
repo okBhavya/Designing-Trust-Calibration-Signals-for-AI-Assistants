@@ -84,3 +84,73 @@ def extract_claims(sentences: tuple[Sentence, ...]) -> tuple[Claim, ...]:
         )
     candidates.sort(key=lambda claim: ({"high": 0, "medium": 1, "low": 2}[claim.materiality], claim.sentence_index))
     return tuple(candidates[:MAX_CLAIMS])
+
+import json
+from pathlib import Path
+from typing import Protocol
+
+def resolve_fixture_path(path: str | None, fixture_dir: str) -> Path | None:
+    if path is None:
+        return None
+    root = Path(fixture_dir).expanduser().resolve()
+    candidate = (root / path).resolve()
+    if candidate != root and root not in candidate.parents:
+        raise ProviderUnavailableError("Evidence fixture path is outside the configured fixture directory")
+    return candidate
+
+@dataclass(frozen=True)
+class EvidenceSource:
+    source_id: str
+    url: str
+    title: str
+    publisher: str
+    domain: str
+    retrieved_at: str
+    published_at: str | None
+    snippet: str
+    relevance_score: float
+    quality: float
+    independence_group: str
+
+class EvidenceRetriever(Protocol):
+    def retrieve(self, claim: Claim) -> tuple[EvidenceSource, ...]:
+        ...
+
+class FixtureEvidenceRetriever:
+    def __init__(self, fixture_path: str | Path | None = None, *, fixture_dir: str = "data/evidence_fixtures", records: list[dict] | None = None):
+        self.records = records if records is not None else self._load(fixture_path, fixture_dir)
+
+    def _load(self, fixture_path: str | Path | None, fixture_dir: str) -> list[dict]:
+        if not fixture_path:
+            return []
+        resolved = resolve_fixture_path(str(fixture_path), fixture_dir)
+        if not resolved or not resolved.exists():
+            raise ProviderUnavailableError(f"Evidence fixture not found: {fixture_path}")
+        return json.loads(resolved.read_text(encoding="utf-8"))
+
+    def retrieve(self, claim: Claim) -> tuple[EvidenceSource, ...]:
+        claim_norm = _normalize(claim.text)
+        results: list[EvidenceSource] = []
+        for record in self.records:
+            record_norm = _normalize(record.get("claim", ""))
+            overlap = set(claim_norm.split()) & set(record_norm.split())
+            if record_norm in claim_norm or claim_norm in record_norm or len(overlap) >= 3:
+                results.append(
+                    EvidenceSource(
+                        source_id=record["sourceId"],
+                        url=record["url"],
+                        title=record.get("title", ""),
+                        publisher=record.get("publisher", ""),
+                        domain=record.get("domain", ""),
+                        retrieved_at=record.get("retrievedAt", ""),
+                        published_at=record.get("publishedAt"),
+                        snippet=record.get("snippet", ""),
+                        relevance_score=float(record.get("relevanceScore", 1.0)),
+                        quality=float(record.get("quality", 1.0)),
+                        independence_group=record.get("independenceGroup", record.get("domain", record["sourceId"])),
+                    )
+                )
+        unique: dict[tuple[str, str], EvidenceSource] = {}
+        for source in results:
+            unique[(source.independence_group, source.url)] = source
+        return tuple(unique.values())
