@@ -172,3 +172,33 @@ def risk_coverage(
         errors += not is_correct
         points.append(RiskCoveragePoint(count / len(ordered), errors / count, threshold))
     return tuple(points)
+
+def fit_isotonic(actual: Sequence[int], scores: Sequence[float]) -> IsotonicCalibrator:
+    _require_equal_length(actual, scores)
+    if any(value not in (0, 1) for value in actual):
+        raise ValueError("Isotonic labels must be binary 0/1")
+    if any(not isfinite(value) or value < 0 or value > 1 for value in scores):
+        raise ValueError("Isotonic scores must be finite probabilities in [0, 1]")
+    ordered = sorted(zip(scores, actual), key=lambda item: item[0])
+    blocks: list[list[float]] = []
+    for score, outcome in ordered:
+        blocks.append([score, score, 1.0, float(outcome)])
+        while len(blocks) >= 2:
+            previous, current = blocks[-2], blocks[-1]
+            if previous[3] / previous[2] <= current[3] / current[2]:
+                break
+            total_weight = previous[2] + current[2]
+            merged = [previous[0], current[1], total_weight, previous[3] + current[3]]
+            blocks[-2:] = [merged]
+    tied_blocks: list[list[float]] = []
+    for block in blocks:
+        if tied_blocks and tied_blocks[-1][1] == block[0]:
+            previous = tied_blocks[-1]
+            weight = previous[2] + block[2]
+            tied_blocks[-1] = [previous[0], block[1], weight, previous[3] + block[3]]
+        else:
+            tied_blocks.append(block)
+    return IsotonicCalibrator(
+        x=tuple(block[1] for block in tied_blocks),
+        y=tuple(block[3] / block[2] for block in tied_blocks),
+    )
