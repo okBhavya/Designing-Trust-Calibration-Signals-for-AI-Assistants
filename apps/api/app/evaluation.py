@@ -127,3 +127,31 @@ def binary_auroc(actual: Sequence[int], scores: Sequence[float]) -> float:
         rank_sum += average_rank * sum(label for _, label in ordered[index:end])
         index = end
     return (rank_sum - positives * (positives + 1) / 2) / (positives * negatives)
+
+def calibration_metrics(
+    actual: Sequence[int],
+    probabilities: Sequence[float],
+    bins: int = 10,
+) -> CalibrationMetrics:
+    _require_equal_length(actual, probabilities)
+    if bins < 1:
+        raise ValueError("bins must be positive")
+    if any(value not in (0, 1) for value in actual):
+        raise ValueError("Calibration labels must be binary 0/1")
+    if any(not isfinite(value) or value < 0 or value > 1 for value in probabilities):
+        raise ValueError("Calibration probabilities must be in [0, 1]")
+    counts = [0] * bins
+    bucket_errors = [0.0] * bins
+    bucket_probability = [0.0] * bins
+    bucket_outcome = [0.0] * bins
+    for outcome, probability in zip(actual, probabilities):
+        bucket = min(bins - 1, int(probability * bins))
+        counts[bucket] += 1
+        bucket_probability[bucket] += probability
+        bucket_outcome[bucket] += outcome
+    for index, count in enumerate(counts):
+        if count:
+            bucket_errors[index] = abs(bucket_probability[index] / count - bucket_outcome[index] / count)
+    ece = sum(count * error for count, error in zip(counts, bucket_errors)) / len(actual)
+    brier = sum((probability - outcome) ** 2 for probability, outcome in zip(probabilities, actual)) / len(actual)
+    return CalibrationMetrics(ece=ece, brier=brier, bin_counts=tuple(counts))
