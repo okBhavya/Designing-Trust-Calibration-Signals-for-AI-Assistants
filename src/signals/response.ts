@@ -3,12 +3,16 @@ import type { CaptureResponse, SignalResponse } from '../core/contracts';
 export function isSignalResponse(value: unknown): value is SignalResponse {
   if (!value || typeof value !== 'object') return false;
   const response = value as Partial<SignalResponse>;
+  const assessmentStateValid =
+    response.assessmentState === undefined ||
+    ['high', 'medium', 'low', 'insufficient_evidence', 'unavailable', 'abstained'].includes(response.assessmentState);
   const confidenceValid =
     response.confidence === undefined || ['high', 'medium', 'low'].includes(response.confidence);
   const scoreValid =
     response.score === undefined || (typeof response.score === 'number' && response.score >= 0 && response.score <= 1);
   return (
     typeof response.modelVersion === 'string' &&
+    assessmentStateValid &&
     typeof response.status === 'string' &&
     ['checking', 'signal', 'error', 'timeout', 'not-applicable'].includes(response.status) &&
     confidenceValid &&
