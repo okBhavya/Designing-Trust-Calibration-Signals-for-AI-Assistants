@@ -154,3 +154,25 @@ class FixtureEvidenceRetriever:
         for source in results:
             unique[(source.independence_group, source.url)] = source
         return tuple(unique.values())
+
+@dataclass(frozen=True)
+class Verification:
+    claim: Claim
+    outcome: str
+    evidence_strength: str
+    uncertainty: float
+    supporting: tuple[EvidenceSource, ...]
+    contradicting: tuple[EvidenceSource, ...]
+    explanation: str
+
+def verify_claim(claim: Claim, sources: tuple[EvidenceSource, ...]) -> Verification:
+    supporting = tuple(source for source in sources if source.relevance_score > 0 and source.quality >= 0.6)
+    contradicting = tuple(source for source in sources if source.relevance_score < 0 and source.quality >= 0.6)
+    if supporting and contradicting:
+        return Verification(claim, "insufficient_evidence", "moderate", 0.7, supporting, contradicting, "Evidence conflicts.")
+    if supporting:
+        strength = "strong" if len({source.independence_group for source in supporting}) >= 2 else "moderate"
+        return Verification(claim, "supported", strength, 0.15, supporting, (), "Independent evidence supports this claim.")
+    if contradicting:
+        return Verification(claim, "contradicted", "strong", 0.2, (), contradicting, "Evidence contradicts this claim.")
+    return Verification(claim, "insufficient_evidence", "none", 1.0, (), (), "No sufficient evidence was available.")
