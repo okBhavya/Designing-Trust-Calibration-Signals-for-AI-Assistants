@@ -12,6 +12,7 @@ const prefersDark = () =>
 export function Overlay({ signal }: OverlayProps) {
   const [expanded, setExpanded] = useState(false);
   const [dark, setDark] = useState(prefersDark);
+  const isMockSignal = signal.modelVersion.startsWith('mock-');
 
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') return;
@@ -28,8 +29,14 @@ export function Overlay({ signal }: OverlayProps) {
         ? 'No signal available'
         : signal.status === 'error' || signal.status === 'timeout'
           ? 'Could not check this answer'
-        : signal.status === 'signal' && signal.confidence
-          ? labels[signal.confidence]
+        : !isMockSignal && signal.assessmentState === 'insufficient_evidence'
+          ? 'Insufficient evidence'
+          : !isMockSignal && signal.assessmentState === 'unavailable'
+            ? 'Evaluation unavailable'
+            : !isMockSignal && signal.assessmentState === 'abstained'
+              ? 'Evaluation not provided'
+              : signal.status === 'signal' && signal.confidence
+                ? labels[signal.confidence]
           : 'Signal unavailable';
 
   return (
@@ -37,7 +44,7 @@ export function Overlay({ signal }: OverlayProps) {
       <div className="calibrai-row">
         <span className={`calibrai-dot ${signal.confidence ?? signal.status}`} aria-hidden="true" />
         <span className="calibrai-title">{title}</span>
-        {signal.status === 'signal' && (
+        {signal.status === 'signal' && (isMockSignal || signal.assessmentState !== 'unavailable') && (
           <button
             type="button"
             className="calibrai-button"
@@ -49,7 +56,7 @@ export function Overlay({ signal }: OverlayProps) {
         )}
       </div>
       {expanded && signal.explanation && <p className="calibrai-explanation">{signal.explanation}</p>}
-      <span className="calibrai-meta">CalibrAI mock signal</span>
+      <span className="calibrai-meta">CalibrAI {signal.modelVersion}</span>
     </div>
   );
 }
