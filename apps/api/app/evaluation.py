@@ -71,6 +71,7 @@ def _require_equal_length(*values: Sequence[object]) -> None:
     if any(len(value) != len(values[0]) for value in values[1:]):
         raise ValueError("Evaluation sequences must have equal length")
 
+
 def classification_metrics(
     actual: Sequence[str],
     predicted: Sequence[str],
@@ -106,6 +107,7 @@ def classification_metrics(
         confusion=confusion,
     )
 
+
 def binary_auroc(actual: Sequence[int], scores: Sequence[float]) -> float:
     _require_equal_length(actual, scores)
     if any(value not in (0, 1) for value in actual):
@@ -127,6 +129,7 @@ def binary_auroc(actual: Sequence[int], scores: Sequence[float]) -> float:
         rank_sum += average_rank * sum(label for _, label in ordered[index:end])
         index = end
     return (rank_sum - positives * (positives + 1) / 2) / (positives * negatives)
+
 
 def calibration_metrics(
     actual: Sequence[int],
@@ -156,6 +159,7 @@ def calibration_metrics(
     brier = sum((probability - outcome) ** 2 for probability, outcome in zip(probabilities, actual)) / len(actual)
     return CalibrationMetrics(ece=ece, brier=brier, bin_counts=tuple(counts))
 
+
 def risk_coverage(
     correct: Sequence[bool],
     confidence: Sequence[float],
@@ -172,6 +176,7 @@ def risk_coverage(
         errors += not is_correct
         points.append(RiskCoveragePoint(count / len(ordered), errors / count, threshold))
     return tuple(points)
+
 
 def fit_isotonic(actual: Sequence[int], scores: Sequence[float]) -> IsotonicCalibrator:
     _require_equal_length(actual, scores)
@@ -202,3 +207,34 @@ def fit_isotonic(actual: Sequence[int], scores: Sequence[float]) -> IsotonicCali
         x=tuple(block[1] for block in tied_blocks),
         y=tuple(block[3] / block[2] for block in tied_blocks),
     )
+
+
+def bootstrap_interval(
+    values: Sequence[object],
+    statistic: Callable[[Sequence[object]], float],
+    *,
+    resamples: int = 1000,
+    seed: int = 0,
+) -> BootstrapInterval:
+    if not values:
+        raise ValueError("Bootstrap evaluation requires observations")
+    if resamples < 1:
+        raise ValueError("resamples must be positive")
+    estimate = statistic(values)
+    rng = Random(seed)
+    samples = [
+        statistic([values[rng.randrange(len(values))] for _ in values])
+        for _ in range(resamples)
+    ]
+    samples.sort()
+    lower = samples[int(0.025 * (resamples - 1))]
+    upper = samples[int(0.975 * (resamples - 1))]
+    return BootstrapInterval(estimate, lower, upper, resamples)
+
+
+def proportion_confidence_interval(successes: int, total: int) -> tuple[float, float]:
+    if total < 1 or successes < 0 or successes > total:
+        raise ValueError("successes and total must define a valid proportion")
+    proportion = successes / total
+    margin = 1.96 * sqrt(proportion * (1 - proportion) / total)
+    return max(0.0, proportion - margin), min(1.0, proportion + margin)
