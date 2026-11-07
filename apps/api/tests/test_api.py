@@ -29,6 +29,18 @@ def test_health(client):
     assert response.json() == {"status": "ok", "service": "calibrai-api"}
 
 
+def test_raw_content_and_credentials_are_rejected_from_metadata(client, auth_headers):
+    participant_id = uuid4()
+    headers = auth_headers(participant_id)
+    assert consent(client, participant_id, headers).status_code == 200
+    response = client.post(
+        "/v1/signal",
+        json=signal_payload(participant_id, metadata={"answer": "must not be accepted"}),
+        headers=headers,
+    )
+    assert response.status_code == 422
+
+
 def test_cors_allows_authenticated_extension_requests(client):
     response = client.options(
         "/v1/signal",
