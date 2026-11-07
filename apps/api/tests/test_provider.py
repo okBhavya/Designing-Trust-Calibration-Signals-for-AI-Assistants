@@ -54,3 +54,54 @@ def test_fixture_path_cannot_escape_configured_directory(tmp_path):
     from app.services.reliability_service import resolve_fixture_path, ProviderUnavailableError
     with pytest.raises(ProviderUnavailableError, match="outside"):
         resolve_fixture_path("..\\secrets.json", str(tmp_path / "fixtures"))
+
+
+def test_aggregation_counts_insufficient_evidence_in_denominator():
+    from app.services.reliability_service import ReliabilityFixtureProvider, FixtureEvidenceRetriever
+    provider = ReliabilityFixtureProvider(
+        FixtureEvidenceRetriever(
+            records=[{
+                "claim": "The sky is blue because sunlight scatters through the atmosphere.",
+                "sourceId": "src-1",
+                "url": "https://example.test/sky",
+                "domain": "example.test",
+                "snippet": "The sky is blue.",
+                "relevanceScore": 1,
+                "quality": 1,
+                "independenceGroup": "example",
+            }]
+        )
+    )
+    request = SignalRequest(
+        participant_id=uuid4(),
+        platform="chatgpt",
+        answer_hash="a" * 64,
+        answer="The sky is blue because sunlight scatters through the atmosphere. The moon is made of cheese.",
+    )
+    response = provider.evaluate(request)
+    assert response.assessment_state == "medium"
+    assert response.claim_assessments[0].assessment == "supported"
+    assert response.claim_assessments[1].assessment == "insufficient_evidence"
+
+
+def test_aggregation_uses_frozen_sixty_percent_low_threshold():
+    from app.services.reliability_service import Claim, Verification, aggregate
+    claims = [
+        Claim(f"c{i}", f"claim {i}", i, "factual", materiality, False)
+        for i, materiality in enumerate(["medium", "medium", "low", "low", "low"])
+    ]
+    verifications = tuple(
+        Verification(
+            claim,
+            "supported" if index < 2 else "insufficient_evidence",
+            "moderate",
+            0.5,
+            (),
+            (),
+            "",
+        )
+        for index, claim in enumerate(claims)
+    )
+    state, _, score = aggregate(verifications)
+    assert score == pytest.approx(4 / 7)
+    assert state == "low"

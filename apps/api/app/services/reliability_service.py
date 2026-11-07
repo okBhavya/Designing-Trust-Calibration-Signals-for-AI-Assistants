@@ -176,3 +176,23 @@ def verify_claim(claim: Claim, sources: tuple[EvidenceSource, ...]) -> Verificat
     if contradicting:
         return Verification(claim, "contradicted", "strong", 0.2, (), contradicting, "Evidence contradicts this claim.")
     return Verification(claim, "insufficient_evidence", "none", 1.0, (), (), "No sufficient evidence was available.")
+
+def aggregate(verifications: tuple[Verification, ...]) -> tuple[str, str, float]:
+    if not verifications:
+        return "abstained", "No independently verifiable claims were extracted.", 0.0
+    if all(item.outcome == "insufficient_evidence" for item in verifications):
+        return "insufficient_evidence", "Available evidence cannot establish these claims.", 0.0
+    denominator = sum(MATERIALITY_WEIGHTS[item.claim.materiality] for item in verifications)
+    supported = sum(
+        MATERIALITY_WEIGHTS[item.claim.materiality] for item in verifications if item.outcome == "supported"
+    )
+    score = supported / denominator
+    if any(item.outcome == "contradicted" and item.claim.materiality == "high" for item in verifications):
+        return "low", "A high-materiality claim is contradicted by evidence.", score
+    if any(item.outcome == "insufficient_evidence" and item.claim.materiality == "high" for item in verifications):
+        return "medium", "A high-materiality claim lacks sufficient evidence.", score
+    if score >= 0.8:
+        return "high", "Evidence supports the material claims in this answer.", score
+    if score >= 0.6:
+        return "medium", "Evidence supports some claims, but uncertainty remains.", score
+    return "low", "Evidence indicates that important claims are not reliable.", score
