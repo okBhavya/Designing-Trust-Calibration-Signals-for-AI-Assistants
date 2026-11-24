@@ -67,6 +67,19 @@ def test_bootstrap_and_proportion_intervals_are_reproducible():
     assert proportion_confidence_interval(3, 4)[0] >= 0
 
 
+def test_proportion_interval_is_wilson():
+    # Reference values for the 95% Wilson score interval.
+    assert proportion_confidence_interval(3, 4) == pytest.approx((0.3006, 0.9544), abs=1e-4)
+    assert proportion_confidence_interval(50, 100) == pytest.approx((0.4038, 0.5962), abs=1e-4)
+    # Wald collapses to [0, 0] and [1, 1] here; Wilson keeps a real interval inside [0, 1].
+    low, high = proportion_confidence_interval(0, 10)
+    assert low == 0.0 and high == pytest.approx(0.2775, abs=1e-4)
+    low, high = proportion_confidence_interval(10, 10)
+    assert low == pytest.approx(0.7225, abs=1e-4) and high == pytest.approx(1.0)
+    with pytest.raises(ValueError):
+        proportion_confidence_interval(5, 4)
+
+
 def test_calibration_rejects_non_finite_probabilities():
     with pytest.raises(ValueError, match="probabilities"):
         calibration_metrics([0, 1], [0.2, float("inf")])
