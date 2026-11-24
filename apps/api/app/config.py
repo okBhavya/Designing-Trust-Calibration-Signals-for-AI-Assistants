@@ -23,7 +23,9 @@ class Settings(BaseSettings):
     rate_limit_window_seconds: int = Field(default=60, ge=1, le=86_400)
     max_request_bytes: int = Field(default=65_536, ge=1_024, le=10_485_760)
     session_signing_secret: str = "development-only-change-this-secret-32chars"
-    session_ttl_seconds: int = Field(default=900, ge=60, le=86_400)
+    # 24h for the pilot: the extension has no token refresh flow yet, so a short
+    # lifetime would force participants to paste a new token every 15 minutes.
+    session_ttl_seconds: int = Field(default=86_400, ge=60, le=86_400)
     enrollment_secret: str = "development-enrollment-secret-change-me"
     signal_provider: Literal["mock", "reliability_fixture"] = "mock"
     evidence_fixture_dir: str = "data/evidence_fixtures"
