@@ -3,6 +3,13 @@ import { isSignalResponse } from '../signals/response';
 import type { ExtensionRuntimeConfig } from './runtimeConfig';
 import { getCachedSignal, storeCachedSignal, type SignalCacheStorage } from './signalCache';
 
+/**
+ * How long the background worker waits for POST /v1/signal. The selfconsistency provider makes
+ * 7 LLM calls (about 8-20 s); the backend gives up at 20 s, so this leaves headroom.
+ * The overlay keeps showing "Checking answer" for the whole wait.
+ */
+export const BACKEND_SIGNAL_TIMEOUT_MS = 25_000;
+
 export function resolveApiEndpoint(config: ExtensionRuntimeConfig): string {
   if (!config.participantId || !config.sessionToken) {
     throw new Error('API mode requires a participant ID and session token');
@@ -21,7 +28,7 @@ export async function requestBackendSignal(
 ): Promise<SignalResponse> {
   const base = resolveApiEndpoint(config);
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8_000);
+  const timeout = setTimeout(() => controller.abort(), BACKEND_SIGNAL_TIMEOUT_MS);
   try {
     const response = await fetchImpl(`${base}/v1/signal`, {
       method: 'POST',
