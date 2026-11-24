@@ -1,0 +1,182 @@
+{
+  "responses": {
+    "fixture_insufficient_evidence": {
+      "assessmentState": "insufficient_evidence",
+      "claimAssessments": [
+        {
+          "assessment": "insufficient_evidence",
+          "claim": "The moon is made of cheese.",
+          "claimId": "clm_2523fbb33a2a",
+          "confidence": "low",
+          "contradictingSourceIds": [],
+          "evidenceStrength": "none",
+          "supportingSourceIds": [],
+          "uncertainty": 1.0
+        }
+      ],
+      "confidence": null,
+      "explanation": "Available evidence cannot establish these claims.",
+      "modelVersion": "reliability-fixture-v1",
+      "processingLatencyMs": 0,
+      "score": null,
+      "sentenceFlags": [
+        {
+          "claimIds": [
+            "clm_2523fbb33a2a"
+          ],
+          "explanation": "No sufficient evidence was available.",
+          "label": "insufficient_evidence",
+          "sentenceIndex": 0
+        }
+      ],
+      "status": "signal"
+    },
+    "fixture_medium_with_flags": {
+      "assessmentState": "medium",
+      "claimAssessments": [
+        {
+          "assessment": "supported",
+          "claim": "The sky is blue because sunlight scatters through the atmosphere.",
+          "claimId": "clm_239c5d25a203",
+          "confidence": "high",
+          "contradictingSourceIds": [],
+          "evidenceStrength": "moderate",
+          "supportingSourceIds": [
+            "src-1"
+          ],
+          "uncertainty": 0.15
+        },
+        {
+          "assessment": "insufficient_evidence",
+          "claim": "The moon is made of cheese.",
+          "claimId": "clm_2523fbb33a2a",
+          "confidence": "low",
+          "contradictingSourceIds": [],
+          "evidenceStrength": "none",
+          "supportingSourceIds": [],
+          "uncertainty": 1.0
+        }
+      ],
+      "confidence": "medium",
+      "explanation": "Evidence supports some claims, but uncertainty remains.",
+      "modelVersion": "reliability-fixture-v1",
+      "processingLatencyMs": 0,
+      "score": 0.6666666666666666,
+      "sentenceFlags": [
+        {
+          "claimIds": [
+            "clm_239c5d25a203"
+          ],
+          "explanation": "Independent evidence supports this claim.",
+          "label": "supported",
+          "sentenceIndex": 0
+        },
+        {
+          "claimIds": [
+            "clm_2523fbb33a2a"
+          ],
+          "explanation": "No sufficient evidence was available.",
+          "label": "insufficient_evidence",
+          "sentenceIndex": 1
+        }
+      ],
+      "status": "signal"
+    },
+    "mock": {
+      "assessmentState": "abstained",
+      "claimAssessments": [],
+      "confidence": "high",
+      "explanation": "This deterministic mock signal is not a factuality assessment.",
+      "modelVersion": "mock-v1",
+      "processingLatencyMs": 0,
+      "score": 0.85,
+      "sentenceFlags": [],
+      "status": "signal"
+    },
+    "provider_unavailable": {
+      "assessmentState": "unavailable",
+      "claimAssessments": [],
+      "confidence": null,
+      "explanation": "Evidence evaluation is temporarily unavailable.",
+      "modelVersion": "reliability-unavailable-v1",
+      "processingLatencyMs": 0,
+      "score": null,
+      "sentenceFlags": [],
+      "status": "signal"
+    },
+    "selfconsistency_with_flags": {
+      "assessmentState": "low",
+      "claimAssessments": [
+        {
+          "assessment": "consistent",
+          "claim": "The Eiffel Tower is in Paris.",
+          "claimId": "clm_f7326e2dd37c",
+          "confidence": "high",
+          "contradictingSourceIds": [],
+          "evidenceStrength": "5/5 samples",
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "uncertainty": 0.0
+        },
+        {
+          "assessment": "inconsistent",
+          "claim": "The Eiffel Tower was completed in 1889.",
+          "claimId": "clm_56ad690a4433",
+          "confidence": "low",
+          "contradictingSourceIds": [
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "evidenceStrength": "2/5 samples",
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2"
+          ],
+          "uncertainty": 0.6
+        },
+        {
+          "assessment": "inconsistent",
+          "claim": "The Eiffel Tower is about 330 metres tall.",
+          "claimId": "clm_a03bd5901ca2",
+          "confidence": "low",
+          "contradictingSourceIds": [],
+          "evidenceStrength": "1/5 samples",
+          "supportingSourceIds": [
+            "sample-1"
+          ],
+          "uncertainty": 0.8
+        }
+      ],
+      "confidence": "low",
+      "explanation": "Only 2 of 5 independent attempts agreed on \"The Eiffel Tower was completed in 1889\".",
+      "modelVersion": "selfconsistency-v1:fake-model",
+      "processingLatencyMs": 0,
+      "score": 0.4,
+      "sentenceFlags": [
+        {
+          "claimIds": [
+            "clm_56ad690a4433"
+          ],
+          "explanation": "2 of 5 independent attempts supported a claim here",
+          "label": "low_agreement",
+          "sentenceIndex": 1
+        },
+        {
+          "claimIds": [
+            "clm_a03bd5901ca2"
+          ],
+          "explanation": "1 of 5 independent attempts supported a claim here",
+          "label": "low_agreement",
+          "sentenceIndex": 2
+        }
+      ],
+      "status": "signal"
+    }
+  }
+}

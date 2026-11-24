@@ -36,7 +36,7 @@ class SignalRequest(BaseModel):
 class SentenceFlag(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    sentence_index: int = Field(ge=0)
+    sentence_index: int = Field(ge=0, alias="sentenceIndex")
     label: str = Field(min_length=1, max_length=100)
     explanation: str | None = Field(default=None, max_length=500)
     claim_ids: list[str] = Field(default_factory=list, alias="claimIds")

@@ -25,7 +25,8 @@ export type PlatformId = 'chatgpt' | 'claude' | 'gemini';
 
 export interface SignalResponse {
   status: SignalStatus;
-  confidence?: ConfidenceLevel;
+  /** null when the backend gives no confidence (insufficient evidence, unavailable, abstained). */
+  confidence?: ConfidenceLevel | null;
   assessmentState?: AssessmentState;
   /** null when no score is meaningful (insufficient evidence, unavailable). */
   score?: number | null;
