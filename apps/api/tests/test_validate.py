@@ -187,3 +187,40 @@ def test_run_is_incremental_and_resumable(tmp_path, monkeypatch):
     assert asyncio.run(validate.run_questions(questions, results, inner, settings, concurrency=2)) == 0
     assert {r["id"] for r in validate.load_jsonl(results)} == {"q1", "q2", "q3"}
     assert len(inner.calls) - calls_before == 8  # only q3 ran: answer + 7 signal calls (exact-match label)
+
+
+def test_results_from_another_engine_version_are_re_run(tmp_path, monkeypatch):
+    real_sleep = asyncio.sleep
+    monkeypatch.setattr(validate.asyncio, "sleep", lambda *_: real_sleep(0))
+    questions = [
+        {"id": "q1", "question": "Where is the Eiffel Tower?", "gold_answers": ["Paris"], "source": "nq_open"},
+        {"id": "q2", "question": "Which city has the Eiffel Tower?", "gold_answers": ["Paris"], "source": "nq_open"},
+    ]
+    results = tmp_path / "results.jsonl"
+    current = "selfconsistency-v2:fake-model"
+    old = {**row(1, "correct", 1.0), "id": "q1", "model_version": "selfconsistency-v1:fake-model"}
+    kept = {**row(2, "correct", 1.0), "id": "q2", "model_version": current}
+    results.write_text(json.dumps(old) + "\n" + json.dumps(kept) + "\n", encoding="utf-8")
+
+    inner = FakeInner()
+    assert asyncio.run(validate.run_questions(questions, results, inner, Settings(), 2, engine_version=current)) == 0
+    rows = validate.load_jsonl(results)
+    assert sorted(r["id"] for r in rows) == ["q1", "q2"]
+    assert {r["model_version"] for r in rows} == {current}
+    assert len(inner.calls) == 8  # only q1 was re-run
+
+
+def test_items_needing_label_review_stay_out_of_the_study_set(tmp_path, monkeypatch):
+    pool = _pool()
+    flagged = pool[0]["id"]  # a correct item that would otherwise be eligible
+    review = {flagged: "possible gold-label error, needs human check"}
+    items, info = validate.select_study_items(pool, exclude=review)
+    assert flagged not in {item["id"] for item in items}
+    assert info["excluded_for_review"] == [flagged]
+
+    monkeypatch.setattr(validate, "REPORT", tmp_path / "report.md")
+    analysis = validate.analyze(pool)
+    text = validate.write_report(analysis, info, True, len(pool), False, review, pool)
+    assert "## Labels needing human review" in text
+    assert f"| `{flagged}` | correct (exact) | high, 1.00 | possible gold-label error, needs human check |" in text
+    assert f"Kept out for human review: `{flagged}`" in text

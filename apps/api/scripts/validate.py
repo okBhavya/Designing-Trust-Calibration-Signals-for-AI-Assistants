@@ -53,6 +53,7 @@ RESULTS = VALIDATION / "results.jsonl"
 REPORT = VALIDATION / "report.md"
 DIAGRAM = VALIDATION / "reliability_diagram.png"
 STUDY = DATA / "questions.json"
+LABEL_REVIEW = VALIDATION / "label_review.json"  # {id: note}: kept in metrics, kept out of the study set
 
 SEED = 20261125
 N_NQ, N_SIMPLEQA = 60, 40
@@ -150,6 +151,10 @@ def build_questions() -> None:
         "questions_sha256": hashlib.sha256(QUESTIONS.read_bytes()).hexdigest(),
     }, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {len(questions)} questions to {QUESTIONS.relative_to(REPO)}")
+
+
+def load_label_review(path: Path = LABEL_REVIEW) -> dict[str, str]:
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 
 
 def load_jsonl(path: Path) -> list[dict]:
@@ -317,9 +322,30 @@ async def evaluate_question(question: dict, inner_client, settings, signal_attem
     }
 
 
-async def run_questions(questions: list[dict], results_path: Path, inner_client, settings, concurrency: int) -> int:
-    """Evaluate questions not yet in results_path, appending each result as soon as it is done."""
-    done = {row["id"] for row in load_jsonl(results_path)}
+async def run_questions(
+    questions: list[dict],
+    results_path: Path,
+    inner_client,
+    settings,
+    concurrency: int,
+    engine_version: str | None = None,
+) -> int:
+    """Evaluate questions not yet in results_path, appending each result as soon as it is done.
+
+    With engine_version, rows produced by any other signal engine version are dropped and re-run,
+    so every result in the file comes from the same engine.
+    """
+    existing = load_jsonl(results_path)
+    if engine_version is not None:
+        stale = [row for row in existing if row.get("model_version") != engine_version]
+        if stale:
+            versions = ", ".join(sorted({str(row.get("model_version")) for row in stale}))
+            print(f"{len(stale)} result(s) from another engine version ({versions}) will be re-run with {engine_version}")
+            existing = [row for row in existing if row.get("model_version") == engine_version]
+            temporary = results_path.with_suffix(".jsonl.tmp")
+            temporary.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in existing), encoding="utf-8")
+            temporary.replace(results_path)
+    done = {row["id"] for row in existing}
     todo = [q for q in questions if q["id"] not in done]
     semaphore, lock = asyncio.Semaphore(concurrency), asyncio.Lock()
     failures = 0
@@ -576,12 +602,22 @@ def hit_rate(rows: list[dict]) -> float | None:
     return sum(trust(row) == (row["label"] == "correct") for row in rows) / len(rows)
 
 
-def select_study_items(results: list[dict], seed: int = SEED) -> tuple[list[dict] | None, dict]:
-    """21 correct + 9 incorrect real items whose (level | correctness) mix mirrors the measured one."""
-    pool = [row for row in results if row["label"] in ("correct", "incorrect") and row["level"] in STUDY_LEVELS]
+def select_study_items(
+    results: list[dict], seed: int = SEED, exclude: dict[str, str] | None = None
+) -> tuple[list[dict] | None, dict]:
+    """21 correct + 9 incorrect real items whose (level | correctness) mix mirrors the measured one.
+
+    Items in `exclude` (labels needing human review) are never chosen.
+    """
+    exclude = exclude or {}
+    pool = [
+        row for row in results
+        if row["label"] in ("correct", "incorrect") and row["level"] in STUDY_LEVELS and row["id"] not in exclude
+    ]
     by_label = {label: [row for row in pool if row["label"] == label] for label in ("correct", "incorrect")}
     needed = {"correct": STUDY_CORRECT, "incorrect": STUDY_INCORRECT}
-    info: dict[str, Any] = {"available": {label: len(rows) for label, rows in by_label.items()}, "needed": needed}
+    info: dict[str, Any] = {"available": {label: len(rows) for label, rows in by_label.items()}, "needed": needed,
+                            "excluded_for_review": sorted(i for i in exclude if any(r["id"] == i for r in results))}
     positives, negatives = by_label["correct"], by_label["incorrect"]
     if positives and negatives:
         tpr = sum(trust(row) for row in positives) / len(positives)
@@ -637,6 +673,26 @@ def _fmt(value, digits: int = 3) -> str:
     return f"{value:.{digits}f}"
 
 
+def _review_section(label_review: dict[str, str], results: list[dict]) -> list[str]:
+    rows = {row["id"]: row for row in results}
+    present = [item for item in label_review if item in rows]
+    if not present:
+        return []
+    lines = [
+        "## Labels needing human review",
+        "",
+        "These items stay in the metrics with their automatic label but are kept out of the study set.",
+        "",
+        "| Item | Auto label | Signal | Note |",
+        "|---|---|---|---|",
+    ]
+    for item in present:
+        row = rows[item]
+        score = "n/a" if row["score"] is None else f"{row['score']:.2f}"
+        lines.append(f"| `{item}` | {row['label']} ({row['label_source']}) | {row['level']}, {score} | {label_review[item]} |")
+    return lines + [""]
+
+
 def _table_md(table: list[dict]) -> list[str]:
     lines = ["| Level | n | Correct | Incorrect | Not graded | Accuracy | 95% CI (Wilson) |", "|---|---|---|---|---|---|---|"]
     for row in table:
@@ -646,7 +702,15 @@ def _table_md(table: list[dict]) -> list[str]:
     return lines
 
 
-def write_report(analysis: dict, study_info: dict, study_written: bool, total_questions: int, diagram: bool) -> str:
+def write_report(
+    analysis: dict,
+    study_info: dict,
+    study_written: bool,
+    total_questions: int,
+    diagram: bool,
+    label_review: dict[str, str] | None = None,
+    results: list[dict] | None = None,
+) -> str:
     high, medium = analysis["thresholds"]
     small = analysis["n_eligible"] < 60
     lines = [
@@ -665,6 +729,7 @@ def write_report(analysis: dict, study_info: dict, study_written: bool, total_qu
         lines += [f"> **Too few answers for reliable estimates** ({analysis['n_eligible']} usable). Treat every "
                   "number below as a smoke test of the pipeline, not as a measurement.", ""]
     lines += [
+        *_review_section(label_review or {}, results or []),
         "## Exclusions from score-based metrics",
         "",
         f"{sum(analysis['excluded'].values())} of {analysis['n_results']} excluded:",
@@ -731,6 +796,8 @@ def write_report(analysis: dict, study_info: dict, study_written: bool, total_qu
         "",
     ]
     available = study_info["available"]
+    if study_info.get("excluded_for_review"):
+        lines += [f"Kept out for human review: {', '.join(f'`{i}`' for i in study_info['excluded_for_review'])}.", ""]
     if study_written:
         lines += [
             f"Written: {STUDY_CORRECT} correct + {STUDY_INCORRECT} incorrect real answers with their real signals.",
@@ -814,9 +881,13 @@ def main() -> int:
             timeout_seconds=settings.selfconsistency_timeout_seconds, effort=settings.llm_effort, max_retries=3,
         )
 
+        from app.services.selfconsistency_service import SelfConsistencyProvider
+
+        engine_version = SelfConsistencyProvider(settings=settings)._version(settings.llm_model)
+
         async def go() -> int:
             try:
-                return await run_questions(selected, RESULTS, inner, settings, args.concurrency)
+                return await run_questions(selected, RESULTS, inner, settings, args.concurrency, engine_version)
             finally:
                 await inner.aclose()
 
@@ -831,10 +902,11 @@ def main() -> int:
         return 1
     analysis = analyze(results)
     diagram = reliability_diagram(analysis, DIAGRAM)
-    items, study_info = select_study_items(results)
+    label_review = load_label_review()
+    items, study_info = select_study_items(results, exclude=label_review)
     if items is not None:
         STUDY.write_text(json.dumps(items, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print("\n" + write_report(analysis, study_info, items is not None, len(questions), diagram))
+    print("\n" + write_report(analysis, study_info, items is not None, len(questions), diagram, label_review, results))
     return 0
 
 
