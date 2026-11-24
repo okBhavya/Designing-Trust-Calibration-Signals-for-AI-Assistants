@@ -17,6 +17,7 @@ from app.services.selfconsistency_service import (
     agreement_reason,
     short_claim,
     state_for,
+    ungrounded_terms,
     weakest_claim,
 )
 
@@ -38,15 +39,17 @@ class FakeLLMClient:
         self.sample_delay = sample_delay
         self.fail_samples = fail_samples
         self.calls: list[str] = []
+        self.models: list[str | None] = []
         self.temperatures: list[float | None] = []
         self.in_flight = 0
         self.max_in_flight = 0
         self.closed = False
         self._sample_index = 0
 
-    async def complete(self, *, system, prompt, json_schema=None, temperature=None):
-        if system == EXTRACT_SYSTEM:
-            self.calls.append("extract")
+    async def complete(self, *, system, prompt, json_schema=None, temperature=None, model=None):
+        if system.startswith(EXTRACT_SYSTEM):
+            self.calls.append("extract" if system == EXTRACT_SYSTEM else "extract_strict")
+            self.models.append(model)
             return LLMResult(self.extraction.pop(0), 100, 50)
         if system == JUDGE_SYSTEM:
             self.calls.append("judge")
@@ -250,7 +253,8 @@ def test_high_state_when_every_attempt_agrees():
 
 def test_claims_are_capped_at_eight():
     claims = [
-        {"claim": f"Fact number {i} holds.", "sentence_indices": [0], "materiality": "medium"} for i in range(10)
+        {"claim": f"The Eiffel Tower is in Paris, part {letter}.", "sentence_indices": [0], "materiality": "medium"}
+        for letter in "abcdefghij"
     ]
     client = FakeLLMClient(extraction=[extraction_json(claims)], judge=[judge_json([[S] * 5] * 8)])
     response = provider_for(client).evaluate(request())
@@ -473,3 +477,82 @@ def test_anthropic_client_sends_schema_never_temperature_and_maps_failures():
 
 def test_default_llm_model_is_haiku():
     assert Settings().llm_model == "claude-haiku-5-5"
+
+
+# --- claim grounding (no LLM call) ------------------------------------------------------------
+
+WRONG_ANSWER = "It was completed in 1902 for the Paris World Fair."
+WRONG_PROMPT = "When was the Eiffel Tower completed?"
+
+
+def test_grounding_flags_numbers_the_sentence_does_not_state():
+    # The 1902 case: Haiku "corrected" the answer's year while extracting.
+    claim = "The Eiffel Tower was built for the 1889 Paris World Fair."
+    assert ungrounded_terms(claim, WRONG_ANSWER, WRONG_PROMPT, WRONG_ANSWER) == ["1889"]
+    assert ungrounded_terms("The Eiffel Tower was completed in 1902.", WRONG_ANSWER, WRONG_PROMPT, WRONG_ANSWER) == []
+
+
+def test_grounding_rules_for_numbers_and_names():
+    answer = "The tower was designed by Gustave Eiffel's firm. It stands 1,063 feet tall."
+    second = "It stands 1,063 feet tall."
+    assert ungrounded_terms("The tower stands 1063 feet tall.", second, "How tall?", answer) == []
+    # Names may come from elsewhere in the answer (resolving "it"); numbers may not.
+    assert ungrounded_terms("Eiffel's tower stands 1063 feet tall.", second, "How tall?", answer) == []
+    assert ungrounded_terms("It was designed in 1887.", "It was designed by Gustave Eiffel's firm.", "q", answer) == ["1887"]
+    assert ungrounded_terms("It was designed by Stephen Sauvestre.", "It was designed by Gustave Eiffel's firm.", "q", answer) == [
+        "Stephen",
+        "Sauvestre",
+    ]
+
+
+def test_ungrounded_claim_is_retried_then_replaced_by_its_sentence():
+    ungrounded = [
+        {"claim": "The Eiffel Tower was completed in 1902.", "sentence_indices": [0], "materiality": "high"},
+        {"claim": "The Eiffel Tower was built for the 1889 Paris World Fair.", "sentence_indices": [0], "materiality": "medium"},
+    ]
+    client = FakeLLMClient(
+        extraction=[extraction_json(ungrounded), extraction_json(ungrounded)],  # the strict retry repeats it
+        judge=[judge_json([[C] * 5, [C, C, C, N, N]])],
+    )
+    response = provider_for(client).evaluate(request(answer=WRONG_ANSWER, prompt=WRONG_PROMPT))
+
+    assert (client.calls.count("extract"), client.calls.count("extract_strict")) == (1, 1)
+    claims = [item.claim for item in response.claim_assessments]
+    assert claims == ["The Eiffel Tower was completed in 1902.", WRONG_ANSWER]
+    assert not any("1889" in claim for claim in claims)
+    assert response.assessment_state == "low"
+
+
+def test_strict_retry_replaces_an_ungrounded_extraction():
+    first = [{"claim": "The Eiffel Tower was built for the 1889 Paris World Fair.", "sentence_indices": [0], "materiality": "high"}]
+    fixed = [{"claim": "The Eiffel Tower was completed in 1902 for the Paris World Fair.", "sentence_indices": [0], "materiality": "high"}]
+    client = FakeLLMClient(extraction=[extraction_json(first), extraction_json(fixed)], judge=[judge_json([[C] * 5])])
+    response = provider_for(client).evaluate(request(answer=WRONG_ANSWER, prompt=WRONG_PROMPT))
+    assert client.calls.count("extract_strict") == 1
+    assert [item.claim for item in response.claim_assessments] == [fixed[0]["claim"]]
+
+
+def test_grounded_extraction_is_not_retried(caplog):
+    client = FakeLLMClient(extraction=[extraction_json(CLAIMS)], judge=[judge_json([[S] * 5] * 3)])
+    with caplog.at_level(logging.INFO, logger="calibrai.selfconsistency"):
+        provider_for(client).evaluate(request())
+    assert "extract_strict" not in client.calls
+    assert "grounding_retries=0 grounding_fallbacks=0" in caplog.text
+
+
+def test_extraction_can_use_its_own_model():
+    client = FakeLLMClient(extraction=[extraction_json(CLAIMS[:1])], judge=[judge_json([[S] * 5])])
+    response = provider_for(client, llm_extraction_model="claude-sonnet-5-5").evaluate(request())
+    assert client.models == ["claude-sonnet-5-5"]
+    assert response.model_version == "selfconsistency-v1:fake-model+extract:claude-sonnet-5-5"
+
+    default = FakeLLMClient(extraction=[extraction_json(CLAIMS[:1])], judge=[judge_json([[S] * 5])])
+    assert provider_for(default).evaluate(request()).model_version == "selfconsistency-v1:fake-model"
+    assert default.models == [None]
+
+
+def test_extraction_model_is_read_from_the_environment(monkeypatch):
+    monkeypatch.setenv("CALIBRAI_LLM_EXTRACTION_MODEL", "claude-sonnet-5-5")
+    assert Settings().llm_extraction_model == "claude-sonnet-5-5"
+    monkeypatch.setenv("CALIBRAI_LLM_EXTRACTION_MODEL", "")
+    assert Settings().llm_extraction_model is None

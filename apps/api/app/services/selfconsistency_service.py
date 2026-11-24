@@ -17,6 +17,7 @@ import asyncio
 import hashlib
 import json
 import logging
+import re
 from dataclasses import dataclass
 from time import perf_counter
 from typing import Any, Callable, Literal
@@ -131,6 +132,11 @@ For a factual answer, list up to 8 distinct claims a careful reader could verify
 
 For any other answer type, return an empty claims list."""
 
+# Appended to EXTRACT_SYSTEM for the one retry after a claim fails the grounding check.
+STRICT_EXTRACT_SUFFIX = """
+
+Restate only what each sentence says. Do not add any name, number or date that the cited sentences or the question do not contain, and keep the answer's own figures even if you believe they are wrong."""
+
 SAMPLE_SYSTEM = "You are a helpful assistant. Answer the user's question."
 
 JUDGE_SYSTEM = """You compare claims against independent answers to the same question.
@@ -141,6 +147,47 @@ For each claim and each answer, choose one verdict:
 - "not_mentioned": the answer does not address the claim.
 
 Judge each answer only by what it says; do not use your own knowledge to decide whether a claim is true. Return one row per claim, using its claim_index, with exactly one verdict per answer in answer order."""
+
+
+# --- Claim grounding (no LLM call) ----------------------------------------------------------
+
+_NUMBER = re.compile(r"\d[\d,]*(?:\.\d+)?")
+_WORD = re.compile(r"\w[\w'\u2019-]*")
+# Capitalized words that are not proper nouns (sentence starts, pronouns, determiners).
+_NOT_PROPER = frozenset(
+    """a an the it its this that these those he she his her him they their them we our you your i
+    in on at for of and or but as by with from to into onto after before during when while where which
+    who whom whose what why how there here some many most all both each every no not one if so than
+    then also however according approximately about around nearly over under yes""".split()
+)
+
+
+def _numbers(text: str) -> set[str]:
+    return {match.group().replace(",", "") for match in _NUMBER.finditer(text)}
+
+
+def _proper_nouns(text: str) -> list[str]:
+    nouns = []
+    for match in _WORD.finditer(text):
+        word = re.sub(r"['\u2019]s$", "", match.group()).strip("'\u2019-")
+        if len(word) > 1 and word[0].isupper() and not word[0].isdigit() and word.lower() not in _NOT_PROPER:
+            nouns.append(word)
+    return nouns
+
+
+def ungrounded_terms(claim: str, source_sentences: str, question: str, answer: str) -> list[str]:
+    """Numbers and proper nouns in `claim` that the answer did not state.
+
+    Numbers (including years) must appear in the claim's own source sentences or the question.
+    Proper nouns may also come from elsewhere in the answer, so a claim can name what "it" refers to.
+    """
+    allowed_numbers = _numbers(source_sentences) | _numbers(question)
+    missing = [number for number in sorted(_numbers(claim)) if number not in allowed_numbers]
+    context = f"{answer}\n{question}"
+    for noun in _proper_nouns(claim):
+        if not re.search(rf"(?<!\w){re.escape(noun)}(?!\w)", context, re.IGNORECASE) and noun not in missing:
+            missing.append(noun)
+    return missing
 
 
 # --- Scoring (pure, unit-tested) ----------------------------------------------------------
@@ -226,6 +273,8 @@ class _Usage:
     calls: int = 0
     input_tokens: int = 0
     output_tokens: int = 0
+    grounding_retries: int = 0
+    grounding_fallbacks: int = 0
 
     def add(self, result) -> None:
         self.calls += 1
@@ -301,13 +350,16 @@ class SelfConsistencyProvider(SignalProvider):
             return self._finish(result, model, started)
         finally:
             logger.info(
-                "selfconsistency outcome=%s model=%s latency_ms=%d llm_calls=%d input_tokens=%d output_tokens=%d",
+                "selfconsistency outcome=%s model=%s latency_ms=%d llm_calls=%d input_tokens=%d output_tokens=%d"
+                " grounding_retries=%d grounding_fallbacks=%d",
                 outcome,
                 model,
                 round((perf_counter() - started) * 1000),
                 usage.calls,
                 usage.input_tokens,
                 usage.output_tokens,
+                usage.grounding_retries,
+                usage.grounding_fallbacks,
             )
 
     async def _run(
@@ -341,6 +393,7 @@ class SelfConsistencyProvider(SignalProvider):
                     else "No independently checkable claims were found."
                 )
                 return _Abstain(reason)
+            claims = await self._ground(client, prompt, sentences, _dedupe_and_cap(extraction.claims), usage)
             sample_results = await asyncio.gather(*sample_tasks)
         except BaseException:
             await _cancel(sample_tasks)
@@ -348,7 +401,6 @@ class SelfConsistencyProvider(SignalProvider):
         for result in sample_results:
             usage.add(result)
         samples = [result.text for result in sample_results]
-        claims = _dedupe_and_cap(extraction.claims)
         verdicts = await self._judge(client, claims, samples, usage)
         consistency = [
             ClaimConsistency(
@@ -362,7 +414,48 @@ class SelfConsistencyProvider(SignalProvider):
         ]
         return self._build(consistency)
 
-    async def _extract(self, client: LLMClient, prompt: str, sentences: tuple[Sentence, ...], usage: _Usage) -> Extraction:
+    def _ungrounded(self, claim: ExtractedClaim, prompt: str, sentences: tuple[Sentence, ...]) -> list[str]:
+        return ungrounded_terms(
+            claim.claim,
+            _source_text(claim, sentences),
+            prompt,
+            " ".join(sentence.text for sentence in sentences),
+        )
+
+    async def _ground(
+        self,
+        client: LLMClient,
+        prompt: str,
+        sentences: tuple[Sentence, ...],
+        claims: list[ExtractedClaim],
+        usage: _Usage,
+    ) -> list[ExtractedClaim]:
+        """Keep claims to what the answer says: one stricter re-extraction, then the source sentence."""
+        if not any(self._ungrounded(claim, prompt, sentences) for claim in claims):
+            return claims
+        usage.grounding_retries += 1
+        try:
+            retry = await self._extract(client, prompt, sentences, usage, strict=True)
+            if retry.answer_type == "factual" and retry.claims:
+                claims = _dedupe_and_cap(retry.claims)
+        except MalformedOutputError:
+            pass  # keep the first extraction; failing claims fall back to their sentences below
+        grounded = []
+        for claim in claims:
+            if self._ungrounded(claim, prompt, sentences):
+                usage.grounding_fallbacks += 1
+                claim = claim.model_copy(update={"claim": _source_text(claim, sentences)[:2_000]})
+            grounded.append(claim)
+        return _dedupe_and_cap(grounded)
+
+    async def _extract(
+        self,
+        client: LLMClient,
+        prompt: str,
+        sentences: tuple[Sentence, ...],
+        usage: _Usage,
+        strict: bool = False,
+    ) -> Extraction:
         numbered = "\n".join(f"[{sentence.index}] {sentence.text}" for sentence in sentences)
         user = f"Question:\n<question>\n{prompt}\n</question>\n\nAnswer sentences:\n<answer>\n{numbered}\n</answer>"
 
@@ -373,7 +466,10 @@ class SelfConsistencyProvider(SignalProvider):
                 raise ValueError("sentence index out of range")
             return extraction
 
-        return await _call_json(client, EXTRACT_SYSTEM, user, EXTRACTION_SCHEMA, parse, usage)
+        system = EXTRACT_SYSTEM + STRICT_EXTRACT_SUFFIX if strict else EXTRACT_SYSTEM
+        return await _call_json(
+            client, system, user, EXTRACTION_SCHEMA, parse, usage, model=self.settings.llm_extraction_model
+        )
 
     async def _judge(
         self,
@@ -484,6 +580,9 @@ class SelfConsistencyProvider(SignalProvider):
         )
 
     def _version(self, model: str) -> str:
+        extraction_model = self.settings.llm_extraction_model
+        if extraction_model and extraction_model != model:
+            return f"{MODEL_VERSION_PREFIX}:{model}+extract:{extraction_model}"[:100]
         return f"{MODEL_VERSION_PREFIX}:{model}"[:100]
 
     def _finish(self, result: SignalResponse, model: str, started: float) -> SignalResponse:
@@ -512,10 +611,25 @@ class SelfConsistencyProvider(SignalProvider):
         )
 
 
-async def _call_json(client: LLMClient, system: str, user: str, schema: dict[str, Any], parse, usage: _Usage):
+def _source_text(claim: ExtractedClaim, sentences: tuple[Sentence, ...]) -> str:
+    return " ".join(sentences[index].text for index in sorted(set(claim.sentence_indices)))
+
+
+async def _call_json(
+    client: LLMClient,
+    system: str,
+    user: str,
+    schema: dict[str, Any],
+    parse,
+    usage: _Usage,
+    model: str | None = None,
+):
     """One call plus one retry on unparseable or invalid JSON."""
     for _ in range(2):
-        result = await client.complete(system=system, prompt=user, json_schema=schema)
+        if model:
+            result = await client.complete(system=system, prompt=user, json_schema=schema, model=model)
+        else:
+            result = await client.complete(system=system, prompt=user, json_schema=schema)
         usage.add(result)
         try:
             return parse(result.text)

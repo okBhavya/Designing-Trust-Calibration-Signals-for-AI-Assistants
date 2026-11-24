@@ -27,8 +27,12 @@ class LLMClient(Protocol):
         prompt: str,
         json_schema: dict[str, Any] | None = None,
         temperature: float | None = None,
+        model: str | None = None,
     ) -> LLMResult:
-        """Return the model's text. With json_schema, the text must be JSON matching it."""
+        """Return the model's text. With json_schema, the text must be JSON matching it.
+
+        `model` overrides the client's default model for this call.
+        """
         ...
 
     async def aclose(self) -> None:
@@ -65,6 +69,7 @@ class AnthropicLLMClient:
         prompt: str,
         json_schema: dict[str, Any] | None = None,
         temperature: float | None = None,
+        model: str | None = None,
     ) -> LLMResult:
         # `temperature` is deliberately not sent: current Claude models (Opus 4.7 and later)
         # reject sampling parameters with a 400 and always sample at the default, which
@@ -74,7 +79,7 @@ class AnthropicLLMClient:
             output_config["format"] = {"type": "json_schema", "schema": json_schema}
         try:
             response = await self._client.messages.create(
-                model=self.model,
+                model=model or self.model,
                 max_tokens=self._max_tokens,
                 system=system,
                 messages=[{"role": "user", "content": prompt}],
