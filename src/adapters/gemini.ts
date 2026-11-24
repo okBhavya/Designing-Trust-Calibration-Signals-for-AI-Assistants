@@ -12,6 +12,17 @@ function contentElement(container: HTMLElement): HTMLElement {
   return container.querySelector<HTMLElement>('.model-response-text, message-content') ?? container;
 }
 
+/** Resolves any match to the outermost .model-response so each answer is detected once. */
+function answerContainer(candidate: HTMLElement): HTMLElement {
+  let outer = candidate.closest<HTMLElement>('.model-response');
+  let parent = outer?.parentElement?.closest<HTMLElement>('.model-response');
+  while (parent) {
+    outer = parent;
+    parent = parent.parentElement?.closest<HTMLElement>('.model-response');
+  }
+  return outer ?? candidate.closest<HTMLElement>('message-content') ?? candidate;
+}
+
 export function isGeminiStreaming(container: HTMLElement): boolean {
   return Boolean(
     container.matches('[aria-busy="true"], [data-is-streaming="true"]') ||
@@ -26,7 +37,7 @@ export const geminiAdapter: SiteAdapter = {
     const seen = new Set<HTMLElement>();
     return assistantSelectors.flatMap((selector) =>
       Array.from(root.querySelectorAll<HTMLElement>(selector)).flatMap((candidate) => {
-        const container = candidate.closest<HTMLElement>('.model-response, message-content') ?? candidate;
+        const container = answerContainer(candidate);
         if (seen.has(container)) return [];
         seen.add(container);
         const content = contentElement(container);
