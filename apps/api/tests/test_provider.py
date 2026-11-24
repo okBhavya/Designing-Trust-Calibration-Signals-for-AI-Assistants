@@ -76,6 +76,25 @@ def test_empty_reliability_input_is_unavailable_not_low():
     response = ReliabilityFixtureProvider().evaluate(request)
     assert response.assessment_state == "unavailable"
     assert response.confidence is None
+    assert response.score is None
+
+
+def _verifications(outcomes, materiality="medium"):
+    return tuple(
+        Verification(Claim(f"c{i}", f"claim {i}", i, "factual", materiality, False), outcome, "moderate", 0.5, (), (), "")
+        for i, outcome in enumerate(outcomes)
+    )
+
+
+def test_score_is_none_without_assessable_evidence_and_zero_only_when_contradicted():
+    assert aggregate(())[0] == "abstained"
+    assert aggregate(())[2] is None
+    state, _, score = aggregate(_verifications(["insufficient_evidence", "insufficient_evidence"]))
+    assert state == "insufficient_evidence"
+    assert score is None
+    state, _, score = aggregate(_verifications(["contradicted", "contradicted"], materiality="high"))
+    assert state == "low"
+    assert score == 0.0
 
 
 def test_aggregation_uses_frozen_sixty_percent_low_threshold():

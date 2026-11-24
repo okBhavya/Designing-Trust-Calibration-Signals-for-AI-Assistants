@@ -107,6 +107,7 @@ def test_reliability_fixture_provider_is_feature_flagged_and_does_not_store_raw_
     assert response.status_code == 200
     assert response.json()["assessmentState"] == "insufficient_evidence"
     assert response.json()["claimAssessments"][0]["assessment"] == "insufficient_evidence"
+    assert response.json()["score"] is None
 
     revisit = client.post("/v1/signal", json=payload, headers=headers)
     assert revisit.status_code == 200

@@ -5,6 +5,7 @@ import type { CaptureRequest, SignalResponse } from '../src/core/contracts';
 import { isOverlayEventMessage, postBackendEvent, sendOverlayEvent, type OverlayEventMessage } from '../src/core/events';
 import { signalCacheKey, type SignalCacheStorage } from '../src/core/signalCache';
 import { geminiAdapter } from '../src/adapters/gemini';
+import { isSignalResponse } from '../src/signals/response';
 import { mountOverlay } from '../src/overlay/mountOverlay';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -167,5 +168,28 @@ describe('bug 3: overlay events', () => {
     await act(async () => button('Dismiss').click());
     expect(onEvent.mock.calls.at(-1)).toEqual(['signal_dismissed']);
     expect(host.shadowRoot!.querySelector('.calibrai-overlay')).toBeNull();
+  });
+});
+
+describe('bug 7: nullable score', () => {
+  it('accepts a null score and still rejects out-of-range scores', () => {
+    expect(isSignalResponse({ status: 'signal', assessmentState: 'insufficient_evidence', score: null, modelVersion: 'x' })).toBe(true);
+    expect(isSignalResponse({ status: 'signal', score: 1.5, modelVersion: 'x' })).toBe(false);
+  });
+
+  it('renders insufficient evidence without a score', async () => {
+    const container = document.createElement('article');
+    document.body.append(container);
+    let host!: HTMLElement;
+    await act(async () => {
+      host = mountOverlay(container, {
+        status: 'signal',
+        assessmentState: 'insufficient_evidence',
+        score: null,
+        explanation: 'No evidence.',
+        modelVersion: 'reliability-fixture-v1',
+      });
+    });
+    expect(host.shadowRoot!.textContent).toContain('Insufficient evidence');
   });
 });

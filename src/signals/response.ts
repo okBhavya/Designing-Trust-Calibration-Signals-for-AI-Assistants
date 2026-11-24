@@ -9,7 +9,9 @@ export function isSignalResponse(value: unknown): value is SignalResponse {
   const confidenceValid =
     response.confidence === undefined || ['high', 'medium', 'low'].includes(response.confidence);
   const scoreValid =
-    response.score === undefined || (typeof response.score === 'number' && response.score >= 0 && response.score <= 1);
+    response.score === undefined ||
+    response.score === null ||
+    (typeof response.score === 'number' && response.score >= 0 && response.score <= 1);
   return (
     typeof response.modelVersion === 'string' &&
     assessmentStateValid &&

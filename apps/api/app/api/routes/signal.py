@@ -69,7 +69,7 @@ def signal(
         result = SignalResponse(
             confidence=None,
             assessmentState="unavailable",
-            score=0,
+            score=None,
             explanation="Evidence evaluation is temporarily unavailable.",
             modelVersion="reliability-unavailable-v1",
             processingLatencyMs=0,

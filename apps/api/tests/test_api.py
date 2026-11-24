@@ -148,6 +148,24 @@ def test_events_are_rejected_without_current_consent(client, auth_headers):
     assert client.post("/v1/events", json=event, headers=headers).status_code == 403
 
 
+def test_provider_outage_has_no_score(client, auth_headers, monkeypatch):
+    from app.api.routes import signal as signal_route
+    from app.services.reliability_service import ProviderUnavailableError
+
+    participant_id = uuid4()
+    headers = auth_headers(participant_id)
+    consent(client, participant_id, headers)
+
+    def unavailable():
+        raise ProviderUnavailableError("down")
+
+    monkeypatch.setattr(signal_route, "get_provider", unavailable)
+    response = client.post("/v1/signal", json=signal_payload(participant_id), headers=headers)
+    assert response.status_code == 200
+    assert response.json()["assessmentState"] == "unavailable"
+    assert response.json()["score"] is None
+
+
 def test_rate_limit(client, auth_headers, monkeypatch):
     from app.config import get_settings
     from app.core.rate_limit import limiter
