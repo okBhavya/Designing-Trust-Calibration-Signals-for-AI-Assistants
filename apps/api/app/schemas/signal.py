@@ -66,5 +66,7 @@ class SignalResponse(BaseModel):
     sentence_flags: list[SentenceFlag] = Field(default_factory=list, alias="sentenceFlags")
     claim_assessments: list[ClaimAssessment] = Field(default_factory=list, alias="claimAssessments")
     explanation: str = Field(max_length=1_000)
+    # Explanation for the stored copy when `explanation` quotes claim text. Never serialized.
+    stored_explanation: str | None = Field(default=None, max_length=1_000, exclude=True)
     model_version: str = Field(alias="modelVersion", min_length=1, max_length=100)
     processing_latency_ms: int = Field(alias="processingLatencyMs", ge=0)
