@@ -12,6 +12,7 @@ from app.database.models import LiveSignal
 from app.schemas.signal import SignalRequest, SignalResponse
 from app.services.consent_service import require_capture_consent
 from app.services.reliability_service import ProviderUnavailableError, ReliabilityFixtureProvider
+from app.services.selfconsistency_service import SelfConsistencyProvider
 from app.services.signal_service import MockSignalProvider, SignalProvider
 from app.config import get_settings
 
@@ -28,6 +29,8 @@ def _privacy_safe_response(result: SignalResponse) -> dict:
         }
         for assessment in payload.get("claimAssessments", [])
     ]
+    if result.stored_explanation is not None:
+        payload["explanation"] = result.stored_explanation
     return payload
 
 
@@ -37,6 +40,8 @@ def get_provider() -> SignalProvider:
         return ReliabilityFixtureProvider()
     if settings.signal_provider == "mock":
         return MockSignalProvider()
+    if settings.signal_provider == "selfconsistency":
+        return SelfConsistencyProvider()
     raise ProviderUnavailableError("Configured signal provider is unavailable")
 
 
