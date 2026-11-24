@@ -2,8 +2,13 @@
 
 An LLM extracts the answer's checkable claims, the same prompt is answered k more times
 independently, and one judge call records whether each independent answer supports,
-contradicts or omits each claim. A claim's support rate is supported / k; the answer's
-score is the support rate of its weakest high-materiality claim.
+contradicts or omits each claim.
+
+A claim mentioned (supported or contradicted) by fewer than MIN_MENTIONS samples is
+"not_addressed": it is reported but neither flagged nor scored. Otherwise its support is
+supported / mentions. The answer's score is the support of its weakest addressed
+high-materiality claim (else the weakest addressed claim); with no addressed claim the
+answer is insufficient_evidence.
 """
 
 from __future__ import annotations
@@ -28,6 +33,7 @@ logger = logging.getLogger("calibrai.selfconsistency")
 
 MODEL_VERSION_PREFIX = "selfconsistency-v1"
 MAX_CLAIMS = 8
+MIN_MENTIONS = 2
 MATERIALITY_ORDER = {"high": 0, "medium": 1, "low": 2}
 Materiality = Literal["high", "medium", "low"]
 Verdict = Literal["supported", "contradicted", "not_mentioned"]
@@ -153,8 +159,21 @@ class ClaimConsistency:
         return sum(verdict == "supported" for verdict in self.verdicts)
 
     @property
-    def support_rate(self) -> float:
-        return self.supported / len(self.verdicts)
+    def contradicted(self) -> int:
+        return sum(verdict == "contradicted" for verdict in self.verdicts)
+
+    @property
+    def mentions(self) -> int:
+        return self.supported + self.contradicted
+
+    @property
+    def addressed(self) -> bool:
+        return self.mentions >= MIN_MENTIONS
+
+    @property
+    def support_rate(self) -> float | None:
+        """supported / mentions; None when no sample mentions the claim."""
+        return self.supported / self.mentions if self.mentions else None
 
 
 def state_for(score: float, high_threshold: float, medium_threshold: float) -> Literal["high", "medium", "low"]:
@@ -165,12 +184,14 @@ def state_for(score: float, high_threshold: float, medium_threshold: float) -> L
     return "low"
 
 
-def weakest_claim(claims: list[ClaimConsistency]) -> ClaimConsistency:
-    """Weakest high-materiality claim, else the weakest claim of any materiality (first on ties)."""
-    if not claims:
-        raise ValueError("At least one claim is required")
-    pool = [claim for claim in claims if claim.materiality == "high"] or claims
-    return min(pool, key=lambda claim: claim.support_rate)
+def weakest_claim(claims: list[ClaimConsistency]) -> ClaimConsistency | None:
+    """Weakest addressed high-materiality claim, else the weakest addressed claim (first on ties).
+
+    None when no claim is addressed.
+    """
+    addressed = [claim for claim in claims if claim.addressed]
+    pool = [claim for claim in addressed if claim.materiality == "high"] or addressed
+    return min(pool, key=lambda claim: claim.support_rate) if pool else None
 
 
 def short_claim(text: str, limit: int = 60) -> str:
@@ -181,11 +202,16 @@ def short_claim(text: str, limit: int = 60) -> str:
     return f"{cut}…"
 
 
-def agreement_reason(claim: ClaimConsistency, subject: str) -> str:
-    samples = len(claim.verdicts)
-    if claim.supported == samples:
-        return f"All {samples} independent attempts agreed on {subject}."
-    return f"Only {claim.supported} of {samples} independent attempts agreed on {subject}."
+def agreement_reason(claim: ClaimConsistency, subject: str, not_checked: int = 0) -> str:
+    attempts = "attempts" if claim.mentions == len(claim.verdicts) else "attempts that mentioned it"
+    if claim.supported == claim.mentions:
+        reason = f"All {claim.mentions} {attempts} agreed on {subject}"
+    else:
+        reason = f"{claim.supported} of {claim.mentions} {attempts} agreed on {subject}"
+    if not_checked:
+        plural = "s" if not_checked != 1 else ""
+        reason += f"; {not_checked} side detail{plural} not checked"
+    return f"{reason}."
 
 
 def claim_id_for(text: str) -> str:
@@ -378,13 +404,31 @@ class SelfConsistencyProvider(SignalProvider):
 
     def _build(self, claims: list[ClaimConsistency]) -> SignalResponse:
         high, medium = self.settings.selfconsistency_high_threshold, self.settings.selfconsistency_medium_threshold
+        assessments = [self._assess(claim, high, medium) for claim in claims]
         weakest = weakest_claim(claims)
+        if weakest is None:
+            explanation = (
+                f"None of the {len(claims)} claims was mentioned by at least {MIN_MENTIONS} of the "
+                f"{self.settings.selfconsistency_samples} independent attempts, so none could be checked."
+            )
+            return SignalResponse(
+                confidence=None,
+                assessmentState="insufficient_evidence",
+                score=None,
+                claimAssessments=assessments,
+                explanation=explanation,
+                modelVersion="pending",
+                processingLatencyMs=0,
+            )
         score = weakest.support_rate
         state = state_for(score, high, medium)
+        not_checked = sum(not claim.addressed for claim in claims)
 
+        # Only addressed claims below the medium threshold are flagged; with at least
+        # MIN_MENTIONS mentions, support below it always means some attempt contradicted it.
         flagged: dict[int, list[ClaimConsistency]] = {}
         for claim in claims:
-            if claim.support_rate < medium:
+            if claim.addressed and claim.support_rate < medium:
                 for index in claim.sentence_indices:
                     flagged.setdefault(index, []).append(claim)
         flags = [
@@ -392,29 +436,12 @@ class SelfConsistencyProvider(SignalProvider):
                 sentence_index=index,
                 label="low_agreement",
                 explanation="; ".join(
-                    f"{claim.supported} of {len(claim.verdicts)} independent attempts supported a claim here"
+                    f"{claim.contradicted} of {claim.mentions} attempts that mentioned a claim here contradicted it"
                     for claim in items
                 ),
                 claim_ids=[claim.claim_id for claim in items],
             )
             for index, items in sorted(flagged.items())
-        ]
-        assessments = [
-            ClaimAssessment(
-                claim_id=claim.claim_id,
-                claim=claim.text,
-                assessment={"high": "consistent", "medium": "partially_consistent", "low": "inconsistent"}[
-                    state_for(claim.support_rate, high, medium)
-                ],
-                confidence=state_for(claim.support_rate, high, medium),
-                evidence_strength=f"{claim.supported}/{len(claim.verdicts)} samples",
-                uncertainty=round(1 - claim.support_rate, 4),
-                supporting_source_ids=[f"sample-{i + 1}" for i, v in enumerate(claim.verdicts) if v == "supported"],
-                contradicting_source_ids=[
-                    f"sample-{i + 1}" for i, v in enumerate(claim.verdicts) if v == "contradicted"
-                ],
-            )
-            for claim in claims
         ]
         return SignalResponse(
             confidence=state,
@@ -422,11 +449,38 @@ class SelfConsistencyProvider(SignalProvider):
             score=score,
             sentenceFlags=flags,
             claimAssessments=assessments,
-            explanation=agreement_reason(weakest, f'"{short_claim(weakest.text)}"'),
+            explanation=agreement_reason(weakest, f'"{short_claim(weakest.text)}"', not_checked),
             # The stored copy must not contain claim text, so it names the claim by id instead.
-            stored_explanation=agreement_reason(weakest, f"claim {weakest.claim_id}"),
+            stored_explanation=agreement_reason(weakest, f"claim {weakest.claim_id}", not_checked),
             modelVersion="pending",
             processingLatencyMs=0,
+        )
+
+    def _assess(self, claim: ClaimConsistency, high: float, medium: float) -> ClaimAssessment:
+        samples = len(claim.verdicts)
+        supporting = [f"sample-{i + 1}" for i, v in enumerate(claim.verdicts) if v == "supported"]
+        contradicting = [f"sample-{i + 1}" for i, v in enumerate(claim.verdicts) if v == "contradicted"]
+        if not claim.addressed:
+            return ClaimAssessment(
+                claim_id=claim.claim_id,
+                claim=claim.text,
+                assessment="not_addressed",
+                confidence="low",
+                evidence_strength=f"mentioned by {claim.mentions} of {samples} samples",
+                uncertainty=None,
+                supporting_source_ids=supporting,
+                contradicting_source_ids=contradicting,
+            )
+        level = state_for(claim.support_rate, high, medium)
+        return ClaimAssessment(
+            claim_id=claim.claim_id,
+            claim=claim.text,
+            assessment={"high": "consistent", "medium": "partially_consistent", "low": "inconsistent"}[level],
+            confidence=level,
+            evidence_strength=f"{claim.supported} of {claim.mentions} mentions supported ({samples} samples)",
+            uncertainty=round(1 - claim.support_rate, 4),
+            supporting_source_ids=supporting,
+            contradicting_source_ids=contradicting,
         )
 
     def _version(self, model: str) -> str:
