@@ -556,7 +556,9 @@ def reliability_diagram(analysis: dict, path: Path) -> bool:
         ax.set_axisbelow(True)
 
     top.plot([0, 1], [0, 1], linestyle=(0, (4, 3)), color=ink_secondary, linewidth=1.2)
-    top.text(0.02, 0.98, "Dashed line: perfect calibration", color=ink_secondary, fontsize=8, ha="left", va="top")
+    # Above the plot area, so no data point can collide with it.
+    top.text(0, 1.015, "Each point is one score bin; dashed line = perfect calibration", transform=top.transAxes,
+             color=ink_secondary, fontsize=8, ha="left", va="bottom")
     xs, ys = [b["mean_score"] for b in bins], [b["accuracy"] for b in bins]
     top.plot(xs, ys, color=series, linewidth=2, solid_capstyle="round", zorder=3)
     top.scatter(xs, ys, s=64, color=series, edgecolors=surface, linewidths=2, zorder=4)
@@ -564,7 +566,7 @@ def reliability_diagram(analysis: dict, path: Path) -> bool:
     top.set_ylabel("Observed accuracy", color=ink_secondary, fontsize=9)
     top.set_title(
         f"Reliability of the self-consistency score (half B, n={analysis['half_b']})",
-        color=ink, fontsize=11, loc="left", pad=10,
+        color=ink, fontsize=11, loc="left", pad=22,
     )
 
     width = 0.1 * 0.6
