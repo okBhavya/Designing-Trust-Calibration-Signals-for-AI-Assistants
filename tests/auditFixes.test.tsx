@@ -4,6 +4,8 @@ import { requestCachedBackendSignal } from '../src/core/backendSignal';
 import type { CaptureRequest, SignalResponse } from '../src/core/contracts';
 import { isOverlayEventMessage, postBackendEvent, sendOverlayEvent, type OverlayEventMessage } from '../src/core/events';
 import { signalCacheKey, type SignalCacheStorage } from '../src/core/signalCache';
+import { modeModelVersion } from '../src/core/runtimeConfig';
+import { activeSiteStatus } from '../src/core/activeSite';
 import { geminiAdapter } from '../src/adapters/gemini';
 import { isSignalResponse } from '../src/signals/response';
 import { mountOverlay } from '../src/overlay/mountOverlay';
@@ -191,5 +193,20 @@ describe('bug 7: nullable score', () => {
       });
     });
     expect(host.shadowRoot!.textContent).toContain('Insufficient evidence');
+  });
+});
+
+describe('item 6: mode version and popup site', () => {
+  it('labels placeholder overlays with the active mode', () => {
+    expect(modeModelVersion('mock')).toBe('mock-v1');
+    expect(modeModelVersion('api')).toBe('api');
+  });
+
+  it('names the current supported site', () => {
+    expect(activeSiteStatus('https://chatgpt.com/c/1')).toBe('Active on ChatGPT');
+    expect(activeSiteStatus('https://claude.ai/chat/1')).toBe('Active on Claude');
+    expect(activeSiteStatus('https://gemini.google.com/app')).toBe('Active on Gemini');
+    expect(activeSiteStatus('https://example.com/')).toBe('Not active on this page');
+    expect(activeSiteStatus(undefined)).toBe('Not active on this page');
   });
 });

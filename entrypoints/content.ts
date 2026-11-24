@@ -6,6 +6,7 @@ import { DuplicateGuard } from '../src/core/duplicateGuard';
 import { hashAnswer } from '../src/core/hash';
 import { mountOverlay } from '../src/overlay/mountOverlay';
 import { diagnostic } from '../src/core/diagnostics';
+import { modeModelVersion, type RuntimeMode } from '../src/core/runtimeConfig';
 import { sendOverlayEvent } from '../src/core/events';
 
 export default defineContentScript({
@@ -34,7 +35,8 @@ export default defineContentScript({
           continue;
         }
         const target = adapter.getMountTarget(detected.container);
-        const host = mountOverlay(target, { status: 'checking', modelVersion: 'mock-v1' });
+        const placeholderVersion = modeModelVersion(await readRuntimeMode());
+        const host = mountOverlay(target, { status: 'checking', modelVersion: placeholderVersion });
         try {
           const request: CaptureRequest = {
             type: 'capture-answer',
@@ -72,7 +74,7 @@ export default defineContentScript({
           console.error('CalibrAI signal processing failed', error);
           diagnostic('signal-failed', { platform: detected.platform });
           duplicates.forget(detected.container);
-          mountOverlay(target, { status: 'error', modelVersion: 'mock-v1' });
+          mountOverlay(target, { status: 'error', modelVersion: placeholderVersion });
         }
         host.dataset.answerHash = answerHash;
       }
@@ -86,3 +88,12 @@ export default defineContentScript({
     void scan();
   },
 });
+
+async function readRuntimeMode(): Promise<RuntimeMode> {
+  try {
+    const stored = await browser.storage.local.get('mode');
+    return stored.mode === 'api' ? 'api' : 'mock';
+  } catch {
+    return 'mock';
+  }
+}
