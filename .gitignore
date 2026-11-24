@@ -5,3 +5,4 @@ __pycache__
 *.py[cod]
 .venv
 apps/api/*.db
+.env
