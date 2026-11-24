@@ -166,6 +166,12 @@ def test_provider_outage_has_no_score(client, auth_headers, monkeypatch):
     assert response.json()["score"] is None
 
 
+def test_pilot_session_lifetime_is_one_day():
+    from app.config import Settings
+
+    assert Settings().session_ttl_seconds == 86_400
+
+
 def test_rate_limit(client, auth_headers, monkeypatch):
     from app.config import get_settings
     from app.core.rate_limit import limiter
@@ -197,5 +203,8 @@ def test_expired_session_is_rejected(client, auth_headers, monkeypatch):
     participant_id = uuid4()
     headers = auth_headers(participant_id)
     original_time = auth.time.time()
-    monkeypatch.setattr(auth.time, "time", lambda: original_time + 901)
+    from app.config import get_settings
+
+    expired_at = original_time + get_settings().session_ttl_seconds + 1
+    monkeypatch.setattr(auth.time, "time", lambda: expired_at)
     assert client.get(f"/v1/config?participant_id={participant_id}", headers=headers).status_code == 401
