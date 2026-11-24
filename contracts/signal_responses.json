@@ -155,7 +155,7 @@
       ],
       "confidence": "low",
       "explanation": "2 of 5 attempts agreed on \"The Eiffel Tower was completed in 1889\"; 1 side detail not checked.",
-      "modelVersion": "selfconsistency-v1:fake-model",
+      "modelVersion": "selfconsistency-v2:fake-model",
       "processingLatencyMs": 0,
       "score": 0.4,
       "sentenceFlags": [

@@ -32,7 +32,8 @@ from app.services.signal_service import SignalProvider
 
 logger = logging.getLogger("calibrai.selfconsistency")
 
-MODEL_VERSION_PREFIX = "selfconsistency-v1"
+MODEL_VERSION_PREFIX = "selfconsistency-v2"  # v2: claim grounding + refusal detection
+REFUSAL_REASON = "The assistant didn't give a checkable answer."
 MAX_CLAIMS = 8
 MIN_MENTIONS = 2
 MATERIALITY_ORDER = {"high": 0, "medium": 1, "low": 2}
@@ -59,6 +60,7 @@ class Extraction(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     answer_type: Literal["factual", "code_only", "creative", "small_talk"]
+    refusal: bool = False
     claims: list[ExtractedClaim]
 
 
@@ -79,6 +81,7 @@ EXTRACTION_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "answer_type": {"type": "string", "enum": ["factual", "code_only", "creative", "small_talk"]},
+        "refusal": {"type": "boolean"},
         "claims": {
             "type": "array",
             "items": {
@@ -93,7 +96,7 @@ EXTRACTION_SCHEMA: dict[str, Any] = {
             },
         },
     },
-    "required": ["answer_type", "claims"],
+    "required": ["answer_type", "refusal", "claims"],
     "additionalProperties": False,
 }
 
@@ -128,7 +131,9 @@ First classify the answer:
 - "creative": fiction, poetry, brainstorming or other invented content.
 - "small_talk": greetings, thanks or other chit-chat.
 
-For a factual answer, list up to 8 distinct claims a careful reader could verify: names, numbers, dates, causes, definitions, attributions. Skip opinions, advice, hedged speculation and restatements of the question. Write each claim as one short self-contained sentence and cite the indices of the sentences it comes from. Rate materiality by how much the answer depends on the claim: "high" if the answer is wrong or misleading when the claim is wrong, "medium" if it matters but is secondary, "low" for incidental detail.
+Set "refusal" to true when the answer mainly declines, says it does not know, or says it cannot verify the answer, instead of committing to an answer to the question. A hedged answer that still commits to an answer ("I believe it was X") is not a refusal.
+
+For a factual answer, list up to 8 distinct claims a careful reader could verify: names, numbers, dates, causes, definitions, attributions. Skip opinions, advice, hedged speculation and restatements of the question. Never extract claims about the assistant itself (what it knows, is unsure of, can or cannot verify, or offers to do), and skip suggestions to check other sources. Write each claim as one short self-contained sentence and cite the indices of the sentences it comes from. Rate materiality by how much the answer depends on the claim: "high" if the answer is wrong or misleading when the claim is wrong, "medium" if it matters but is secondary, "low" for incidental detail.
 
 For any other answer type, return an empty claims list."""
 
@@ -158,7 +163,8 @@ _NOT_PROPER = frozenset(
     """a an the it its this that these those he she his her him they their them we our you your i
     in on at for of and or but as by with from to into onto after before during when while where which
     who whom whose what why how there here some many most all both each every no not one if so than
-    then also however according approximately about around nearly over under yes""".split()
+    then also however according approximately about around nearly over under yes
+    i'm i've i'd i'll""".split()
 )
 
 
@@ -188,6 +194,37 @@ def ungrounded_terms(claim: str, source_sentences: str, question: str, answer: s
         if not re.search(rf"(?<!\w){re.escape(noun)}(?!\w)", context, re.IGNORECASE) and noun not in missing:
             missing.append(noun)
     return missing
+
+
+# --- Refusal detection (no LLM call) --------------------------------------------------------
+
+_REFUSAL = re.compile(
+    r"\b(i'?m not (sure|certain|able to)|i am not (sure|certain|able to)|i'?m unable to|i am unable to"
+    r"|i (can'?t|cannot|can not|couldn'?t|could not|don'?t|do not|won'?t|will not) "
+    r"(verify|confirm|find|say|know|recall|determine|be sure|be certain|provide|answer|guess|want to guess)"
+    r"|i don'?t have (reliable|enough|any|accurate|specific|verified) (information|data|details|sources?)"
+    r"|no reliable (information|records?|sources?))\b",
+    re.IGNORECASE,
+)
+_ASSIST = re.compile(
+    r"\b(if you (can )?(tell|share|give|let)|let me know|i can help|i'?d be happy to|happy to help"
+    r"|(official|reliable|authoritative) (website|site|sources?|records?)|collection records?"
+    r"|you (could|can|may|might|should) (check|consult|look|search|verify|try)"
+    r"|(check|verify|consult) (with|the|an?|their|official)|look (it )?up|would (also )?(list|have|show|record))\b",
+    re.IGNORECASE,
+)
+
+
+def looks_like_refusal(sentences: tuple[Sentence, ...], question: str) -> bool:
+    """True when the answer only declines: it opens with a refusal or uncertainty statement, every
+    sentence declines or points elsewhere, and no sentence adds a name or number the question lacks
+    (so a hedged answer that still commits, "I believe it was X", is left to the extraction)."""
+    prose = [sentence.text.replace("\u2019", "'") for sentence in sentences if not sentence.is_code and sentence.text]
+    if not prose or not _REFUSAL.search(prose[0]):
+        return False
+    if not all(_REFUSAL.search(text) or _ASSIST.search(text) for text in prose):
+        return False
+    return not any(ungrounded_terms(text, question, question, question) for text in prose)
 
 
 # --- Scoring (pure, unit-tested) ----------------------------------------------------------
@@ -323,6 +360,9 @@ class SelfConsistencyProvider(SignalProvider):
             if not any(not sentence.is_code and sentence.text for sentence in sentences):
                 outcome = "abstained"
                 return self._abstained("Code-only answers are not checked for consistency.", model, started)
+            if looks_like_refusal(sentences, request.prompt or ""):
+                outcome = "abstained:refusal"
+                return self._abstained(REFUSAL_REASON, model, started)
             if not request.prompt or not request.prompt.strip():
                 return self._unavailable("The original prompt was not available for evaluation.", model, started)
             try:
@@ -384,6 +424,9 @@ class SelfConsistencyProvider(SignalProvider):
         ]
         try:
             extraction = await self._extract(client, prompt, sentences, usage)
+            if extraction.refusal:
+                await _cancel(sample_tasks)
+                return _Abstain(REFUSAL_REASON)
             if extraction.answer_type != "factual" or not extraction.claims:
                 await _cancel(sample_tasks)
                 kind = extraction.answer_type.replace("_", " ")
