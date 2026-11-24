@@ -1,8 +1,13 @@
+import { act } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { requestCachedBackendSignal } from '../src/core/backendSignal';
 import type { CaptureRequest, SignalResponse } from '../src/core/contracts';
+import { isOverlayEventMessage, postBackendEvent, sendOverlayEvent, type OverlayEventMessage } from '../src/core/events';
 import { signalCacheKey, type SignalCacheStorage } from '../src/core/signalCache';
 import { geminiAdapter } from '../src/adapters/gemini';
+import { mountOverlay } from '../src/overlay/mountOverlay';
+
+(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 const hash = 'a'.repeat(64);
 const request: CaptureRequest = {
@@ -91,5 +96,76 @@ describe('bug 2: Gemini detects each answer once', () => {
     expect(answers).toHaveLength(2);
     expect(answers.map((answer) => answer.container.className)).toEqual(['model-response', 'model-response']);
     expect(answers.map((answer) => answer.answer)).toEqual(['First answer.', 'Second answer.']);
+  });
+});
+
+describe('bug 3: overlay events', () => {
+  const event: OverlayEventMessage = {
+    type: 'overlay-event',
+    eventType: 'explanation_opened',
+    platform: 'claude',
+    answerHash: hash,
+    modelVersion: 'reliability-fixture-v1',
+    assessmentState: 'medium',
+  };
+
+  it('posts an event without prompt or answer text', async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(new Response('{}', { status: 200 }));
+    await postBackendEvent(event, config, fetchImpl);
+    expect(fetchImpl).toHaveBeenCalledWith('http://127.0.0.1:8000/v1/events', expect.objectContaining({ method: 'POST' }));
+    const body = JSON.parse(fetchImpl.mock.calls[0][1]?.body as string);
+    expect(body).toEqual({
+      participant_id: config.participantId,
+      event_type: 'explanation_opened',
+      platform: 'claude',
+      answer_hash: hash,
+      metadata: { modelVersion: 'reliability-fixture-v1', assessmentState: 'medium' },
+    });
+    expect(JSON.stringify(body)).not.toMatch(/Private (prompt|answer)/);
+  });
+
+  it('sends nothing in mock mode', async () => {
+    const fetchImpl = vi.fn<typeof fetch>();
+    await postBackendEvent(event, { ...config, mode: 'mock' }, fetchImpl);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('validates event messages', () => {
+    expect(isOverlayEventMessage(event)).toBe(true);
+    expect(isOverlayEventMessage({ ...event, eventType: 'answer_copied' })).toBe(false);
+    expect(isOverlayEventMessage({ ...event, answerHash: 'not-a-hash' })).toBe(false);
+  });
+
+  it('is fire-and-forget: send failures never throw', () => {
+    expect(() => sendOverlayEvent(event, () => Promise.reject(new Error('no receiver')))).not.toThrow();
+    expect(() => sendOverlayEvent(event, () => { throw new Error('context invalidated'); })).not.toThrow();
+  });
+
+  it('emits signal_shown once, explanation_opened on open, and signal_dismissed', async () => {
+    const container = document.createElement('article');
+    document.body.append(container);
+    const onEvent = vi.fn();
+    let host!: HTMLElement;
+    await act(async () => {
+      host = mountOverlay(container, { status: 'checking', modelVersion: 'api' }, { answerHash: hash, onEvent });
+    });
+    expect(onEvent).not.toHaveBeenCalled();
+    await act(async () => {
+      mountOverlay(container, backendSignal, { answerHash: hash, onEvent });
+    });
+    await act(async () => {
+      mountOverlay(container, backendSignal, { answerHash: hash, onEvent });
+    });
+    expect(onEvent.mock.calls).toEqual([['signal_shown']]);
+
+    const button = (label: string) =>
+      Array.from(host.shadowRoot!.querySelectorAll('button')).find((element) => element.textContent === label)!;
+    await act(async () => button('Why?').click());
+    await act(async () => button('Hide details').click());
+    expect(onEvent.mock.calls).toEqual([['signal_shown'], ['explanation_opened']]);
+
+    await act(async () => button('Dismiss').click());
+    expect(onEvent.mock.calls.at(-1)).toEqual(['signal_dismissed']);
+    expect(host.shadowRoot!.querySelector('.calibrai-overlay')).toBeNull();
   });
 });

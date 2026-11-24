@@ -3,9 +3,14 @@ import { defaultRuntimeConfig, type ExtensionRuntimeConfig } from '../src/core/r
 import { getMockSignal } from '../src/signals/mockProvider';
 import { diagnostic } from '../src/core/diagnostics';
 import { requestCachedBackendSignal } from '../src/core/backendSignal';
+import { isOverlayEventMessage, postBackendEvent, type OverlayEventMessage } from '../src/core/events';
 
 export default defineBackground(() => {
   browser.runtime.onMessage.addListener(async (message: unknown): Promise<CaptureResponse | undefined> => {
+    if (isOverlayEventMessage(message)) {
+      void forwardOverlayEvent(message);
+      return undefined;
+    }
     if (!isCaptureRequest(message)) return undefined;
     diagnostic('capture-received', { platform: message.platform });
     try {
@@ -25,6 +30,15 @@ export default defineBackground(() => {
     }
   });
 });
+
+/** Events are sent in API mode only and never affect the overlay. */
+async function forwardOverlayEvent(event: OverlayEventMessage): Promise<void> {
+  try {
+    await postBackendEvent(event, await getRuntimeConfig());
+  } catch {
+    diagnostic('event-send-failed', { platform: event.platform });
+  }
+}
 
 async function getRuntimeConfig(): Promise<ExtensionRuntimeConfig> {
   const stored = await browser.storage.local.get(Object.keys(defaultRuntimeConfig));

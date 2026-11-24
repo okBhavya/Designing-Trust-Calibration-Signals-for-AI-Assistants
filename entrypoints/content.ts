@@ -6,6 +6,7 @@ import { DuplicateGuard } from '../src/core/duplicateGuard';
 import { hashAnswer } from '../src/core/hash';
 import { mountOverlay } from '../src/overlay/mountOverlay';
 import { diagnostic } from '../src/core/diagnostics';
+import { sendOverlayEvent } from '../src/core/events';
 
 export default defineContentScript({
   matches: ['https://chatgpt.com/*', 'https://claude.ai/*', 'https://gemini.google.com/*'],
@@ -49,7 +50,23 @@ export default defineContentScript({
           if (response.signal.status === 'error' || response.signal.status === 'timeout') {
             throw new Error('Signal service could not process the answer');
           }
-          mountOverlay(target, response.signal);
+          const signal = response.signal;
+          const platform = detected.platform;
+          mountOverlay(target, signal, {
+            answerHash,
+            onEvent: (eventType) =>
+              sendOverlayEvent(
+                {
+                  type: 'overlay-event',
+                  eventType,
+                  platform,
+                  answerHash,
+                  modelVersion: signal.modelVersion,
+                  assessmentState: signal.assessmentState,
+                },
+                (message) => browser.runtime.sendMessage(message),
+              ),
+          });
           diagnostic('signal-delivered', { platform: detected.platform, status: response.signal.status });
         } catch (error) {
           console.error('CalibrAI signal processing failed', error);

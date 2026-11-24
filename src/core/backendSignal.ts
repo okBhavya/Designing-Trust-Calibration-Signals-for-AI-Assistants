@@ -3,11 +3,7 @@ import { isSignalResponse } from '../signals/response';
 import type { ExtensionRuntimeConfig } from './runtimeConfig';
 import { getCachedSignal, storeCachedSignal, type SignalCacheStorage } from './signalCache';
 
-export async function requestBackendSignal(
-  request: CaptureRequest,
-  config: ExtensionRuntimeConfig,
-  fetchImpl: typeof fetch = fetch,
-): Promise<SignalResponse> {
+export function resolveApiEndpoint(config: ExtensionRuntimeConfig): string {
   if (!config.participantId || !config.sessionToken) {
     throw new Error('API mode requires a participant ID and session token');
   }
@@ -15,10 +11,19 @@ export async function requestBackendSignal(
   if (endpoint.protocol !== 'https:' && endpoint.hostname !== '127.0.0.1' && endpoint.hostname !== 'localhost') {
     throw new Error('API mode requires HTTPS outside local development');
   }
+  return endpoint.toString().replace(/\/$/, '');
+}
+
+export async function requestBackendSignal(
+  request: CaptureRequest,
+  config: ExtensionRuntimeConfig,
+  fetchImpl: typeof fetch = fetch,
+): Promise<SignalResponse> {
+  const base = resolveApiEndpoint(config);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8_000);
   try {
-    const response = await fetchImpl(`${endpoint.toString().replace(/\/$/, '')}/v1/signal`, {
+    const response = await fetchImpl(`${base}/v1/signal`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${config.sessionToken}`,
