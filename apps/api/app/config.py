@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     # LLM used by the selfconsistency provider. The key is read from LLM_API_KEY (no prefix).
     llm_api_key: SecretStr | None = Field(default=None, validation_alias=AliasChoices("LLM_API_KEY"))
     llm_model: str = "claude-haiku-5-5"
+    # Optional separate model for claim extraction (CALIBRAI_LLM_EXTRACTION_MODEL); unset uses llm_model.
+    llm_extraction_model: str | None = None
     llm_effort: Literal["low", "medium", "high", "max"] = "low"
     selfconsistency_samples: int = Field(default=5, ge=2, le=10)
     selfconsistency_temperature: float = Field(default=0.7, ge=0, le=2)
@@ -47,6 +49,11 @@ class Settings(BaseSettings):
         if isinstance(value, str):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
+
+    @field_validator("llm_extraction_model", mode="before")
+    @classmethod
+    def empty_extraction_model_is_unset(cls, value: str | None) -> str | None:
+        return value.strip() or None if isinstance(value, str) else value
 
     @model_validator(mode="after")
     def validate_selfconsistency_thresholds(self) -> "Settings":
