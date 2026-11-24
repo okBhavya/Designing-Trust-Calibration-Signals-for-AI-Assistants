@@ -20,6 +20,16 @@ function Options() {
     });
   }, []);
 
+  const deleteLocalData = () => {
+    void browser.storage.local.clear().then(() => {
+      setMode(defaultRuntimeConfig.mode);
+      setApiBaseUrl(defaultRuntimeConfig.apiBaseUrl);
+      setParticipantId(defaultRuntimeConfig.participantId);
+      setSessionToken(defaultRuntimeConfig.sessionToken);
+      setSaved(false);
+    });
+  };
+
   const save = () => {
     setSaved(false);
     void browser.storage.local.set({ mode, apiBaseUrl, participantId, sessionToken }).then(() => setSaved(true));
@@ -45,7 +55,7 @@ function Options() {
       )}
       <button type="button" onClick={save}>Save signal settings</button>
       {saved && <p role="status">Settings saved.</p>}
-      <button type="button" onClick={() => void browser.storage.local.clear()}>Delete local extension data</button>
+      <button type="button" onClick={deleteLocalData}>Delete local extension data</button>
     </main>
   );
 }
