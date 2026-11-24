@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -38,6 +40,15 @@ def get_provider() -> SignalProvider:
     raise ProviderUnavailableError("Configured signal provider is unavailable")
 
 
+def _stored_signal(db: Session, participant_id, answer_hash: str) -> LiveSignal | None:
+    return db.scalar(
+        select(LiveSignal).where(
+            LiveSignal.participant_id == participant_id,
+            LiveSignal.answer_hash == answer_hash,
+        )
+    )
+
+
 @router.post("/signal", response_model=SignalResponse, dependencies=[Depends(rate_limit)])
 def signal(
     request: SignalRequest,
@@ -47,6 +58,11 @@ def signal(
     if session.participant_id != request.participant_id:
         raise ApiError(403, "Participant does not match authenticated session")
     participant = require_capture_consent(db, request.participant_id)
+    # A revisited answer (e.g. after a page reload) gets the response stored the
+    # first time instead of a 409. The stored copy omits raw claim text.
+    stored = _stored_signal(db, participant.id, request.answer_hash)
+    if stored is not None:
+        return JSONResponse(stored.response_json)
     try:
         result = get_provider().evaluate(request)
     except ProviderUnavailableError:
@@ -75,6 +91,9 @@ def signal(
     except IntegrityError as error:
         db.rollback()
         if "live_signals.participant_id" in str(error) or "uq_live_signal_participant_hash" in str(error):
-            raise ApiError(409, "A signal already exists for this answer") from error
+            # A concurrent request stored this answer first; return its response.
+            stored = _stored_signal(db, participant.id, request.answer_hash)
+            if stored is not None:
+                return JSONResponse(stored.response_json)
         raise
     return result

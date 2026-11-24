@@ -2,7 +2,7 @@ import type { CaptureRequest, CaptureResponse } from '../src/core/contracts';
 import { defaultRuntimeConfig, type ExtensionRuntimeConfig } from '../src/core/runtimeConfig';
 import { getMockSignal } from '../src/signals/mockProvider';
 import { diagnostic } from '../src/core/diagnostics';
-import { requestBackendSignal as requestConfiguredBackendSignal } from '../src/core/backendSignal';
+import { requestCachedBackendSignal } from '../src/core/backendSignal';
 
 export default defineBackground(() => {
   browser.runtime.onMessage.addListener(async (message: unknown): Promise<CaptureResponse | undefined> => {
@@ -12,7 +12,7 @@ export default defineBackground(() => {
       const config = await getRuntimeConfig();
       const signal = config.mode === 'mock'
         ? await getMockSignal(message.answer, message.platform)
-        : await requestConfiguredBackendSignal(message, config);
+        : await requestCachedBackendSignal(message, config, browser.storage.session);
       diagnostic('signal-request-succeeded', { platform: message.platform, status: signal.status });
       return { type: 'capture-result', signal };
     } catch (error) {

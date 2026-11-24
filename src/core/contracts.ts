@@ -36,7 +36,8 @@ export interface SignalResponse {
   }>;
   claimAssessments?: Array<{
     claimId?: string;
-    claim: string;
+    /** Omitted when the backend replays a stored response. */
+    claim?: string;
     assessment: string;
     confidence: ConfidenceLevel;
     evidenceStrength?: string;

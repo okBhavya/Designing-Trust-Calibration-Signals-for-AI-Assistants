@@ -1,6 +1,7 @@
 import type { CaptureRequest, SignalResponse } from './contracts';
 import { isSignalResponse } from '../signals/response';
 import type { ExtensionRuntimeConfig } from './runtimeConfig';
+import { getCachedSignal, storeCachedSignal, type SignalCacheStorage } from './signalCache';
 
 export async function requestBackendSignal(
   request: CaptureRequest,
@@ -43,4 +44,18 @@ export async function requestBackendSignal(
   } finally {
     clearTimeout(timeout);
   }
+}
+
+/** Returns a cached signal for this participant and answer, so a page reload does not re-request it. */
+export async function requestCachedBackendSignal(
+  request: CaptureRequest,
+  config: ExtensionRuntimeConfig,
+  storage: SignalCacheStorage,
+  fetchImpl: typeof fetch = fetch,
+): Promise<SignalResponse> {
+  const cached = await getCachedSignal(storage, config.participantId, request.answerHash);
+  if (cached) return cached;
+  const signal = await requestBackendSignal(request, config, fetchImpl);
+  await storeCachedSignal(storage, config.participantId, request.answerHash, signal);
+  return signal;
 }
