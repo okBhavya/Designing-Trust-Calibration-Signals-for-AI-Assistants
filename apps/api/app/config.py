@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     signal_provider: Literal["mock", "reliability_fixture", "selfconsistency"] = "mock"
     # LLM used by the selfconsistency provider. The key is read from LLM_API_KEY (no prefix).
     llm_api_key: SecretStr | None = Field(default=None, validation_alias=AliasChoices("LLM_API_KEY"))
-    llm_model: str = "claude-opus-5-5"
+    llm_model: str = "claude-haiku-5-5"
     llm_effort: Literal["low", "medium", "high", "max"] = "low"
     selfconsistency_samples: int = Field(default=5, ge=2, le=10)
     selfconsistency_temperature: float = Field(default=0.7, ge=0, le=2)

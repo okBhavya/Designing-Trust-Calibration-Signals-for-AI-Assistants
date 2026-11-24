@@ -469,3 +469,7 @@ def test_anthropic_client_sends_schema_never_temperature_and_maps_failures():
     llm._client.messages.create = timeout
     with pytest.raises(LLMUnavailableError, match="APITimeoutError"):
         asyncio.run(llm.complete(system="s", prompt="p"))
+
+
+def test_default_llm_model_is_haiku():
+    assert Settings().llm_model == "claude-haiku-5-5"
