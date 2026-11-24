@@ -187,7 +187,7 @@ def test_pipeline_scores_addressed_claims_and_fills_the_contract():
         '1 of 4 attempts that mentioned it agreed on "The Eiffel Tower was completed in 1889"; '
         "1 side detail not checked."
     )
-    assert response.model_version == "selfconsistency-v1:fake-model"
+    assert response.model_version == "selfconsistency-v2:fake-model"
     assert "Eiffel" not in response.stored_explanation
     assert response.stored_explanation.startswith("1 of 4 attempts that mentioned it agreed on claim clm_")
 
@@ -403,7 +403,7 @@ def test_api_returns_claims_but_stores_no_claim_text(client, auth_headers, monke
         stored = db.query(LiveSignal).filter_by(participant_id=participant_id).one()
         assert "eiffel" not in json.dumps(stored.response_json).lower()
         assert stored.response_json["explanation"].startswith("2 of 5 attempts agreed on claim clm_")
-        assert stored.model_version == "selfconsistency-v1:fake-model"
+        assert stored.model_version == "selfconsistency-v2:fake-model"
     finally:
         db.close()
 
@@ -544,10 +544,10 @@ def test_extraction_can_use_its_own_model():
     client = FakeLLMClient(extraction=[extraction_json(CLAIMS[:1])], judge=[judge_json([[S] * 5])])
     response = provider_for(client, llm_extraction_model="claude-sonnet-5-5").evaluate(request())
     assert client.models == ["claude-sonnet-5-5"]
-    assert response.model_version == "selfconsistency-v1:fake-model+extract:claude-sonnet-5-5"
+    assert response.model_version == "selfconsistency-v2:fake-model+extract:claude-sonnet-5-5"
 
     default = FakeLLMClient(extraction=[extraction_json(CLAIMS[:1])], judge=[judge_json([[S] * 5])])
-    assert provider_for(default).evaluate(request()).model_version == "selfconsistency-v1:fake-model"
+    assert provider_for(default).evaluate(request()).model_version == "selfconsistency-v2:fake-model"
     assert default.models == [None]
 
 
@@ -556,3 +556,73 @@ def test_extraction_model_is_read_from_the_environment(monkeypatch):
     assert Settings().llm_extraction_model == "claude-sonnet-5-5"
     monkeypatch.setenv("CALIBRAI_LLM_EXTRACTION_MODEL", "")
     assert Settings().llm_extraction_model is None
+
+
+# --- refusals ---------------------------------------------------------------------------------
+
+# Real Haiku answer from the validation run (simpleqa-3610): a refusal that scored High under v1.
+KENTRIDGE_PROMPT = "What is the name of the 10-meter sculpture that William Kentridge created in 2009?"
+KENTRIDGE_REFUSAL = (
+    "I'm not certain of the name of a 10-meter sculpture William Kentridge made in 2009, and I don't want "
+    "to guess and give you a wrong title. If you can tell me where you encountered it, such as a museum, "
+    "public installation, or exhibition, I can help you narrow it down. Kentridge's official website or a "
+    "museum collection record would also list his 2009 works reliably."
+)
+# Real answer (simpleqa-941): hedged, but it commits to a name, so it is not a refusal.
+HEDGED_COMMIT = (
+    "I'm not certain of this. I believe Dr. Mariell Jessup may have been among the early women to chair the "
+    "American Heart Association's Board of Directors, but I can't confirm she was the first, so please verify "
+    "with the AHA's official records or leadership history."
+)
+
+
+def test_refusal_answer_abstains_without_any_llm_call():
+    client = FakeLLMClient()
+    response = provider_for(client).evaluate(request(answer=KENTRIDGE_REFUSAL, prompt=KENTRIDGE_PROMPT))
+    assert response.assessment_state == "abstained"
+    assert response.score is None and response.confidence is None
+    assert response.explanation == "The assistant didn't give a checkable answer."
+    assert response.claim_assessments == [] and response.sentence_flags == []
+    assert client.calls == []
+
+
+def test_curly_apostrophes_are_still_recognised():
+    client = FakeLLMClient()
+    curly = KENTRIDGE_REFUSAL.replace("'", "’")
+    assert provider_for(client).evaluate(request(answer=curly, prompt=KENTRIDGE_PROMPT)).assessment_state == "abstained"
+
+
+def test_answer_with_one_hedge_sentence_is_still_scored():
+    hedged = ANSWER + " I'm not sure about the exact height, though."
+    client = FakeLLMClient(extraction=[extraction_json(CLAIMS)], judge=[judge_json([[S] * 5] * 3)])
+    response = provider_for(client).evaluate(request(answer=hedged))
+    assert client.calls.count("extract") == 1
+    assert response.assessment_state == "high" and response.score == 1.0
+
+
+def test_hedged_answer_that_commits_is_left_to_the_extraction():
+    from app.services.reliability_service import normalize_answer
+    from app.services.selfconsistency_service import looks_like_refusal
+
+    question = "What is the first and last name of the first woman to chair the American Heart Association Board of Directors?"
+    assert looks_like_refusal(normalize_answer(KENTRIDGE_REFUSAL), KENTRIDGE_PROMPT)
+    assert not looks_like_refusal(normalize_answer(HEDGED_COMMIT), question)  # it names Mariell Jessup
+    assert not looks_like_refusal(normalize_answer(ANSWER), "Tell me about the Eiffel Tower.")
+
+
+def test_extraction_refusal_flag_abstains_and_skips_the_judge():
+    vague = "Honestly, that one is hard to pin down. Records from that period disagree with each other."
+    refusal = json.dumps({"answer_type": "factual", "refusal": True, "claims": []})
+    client = FakeLLMClient(extraction=[refusal], sample_delay=5)
+    response = provider_for(client).evaluate(request(answer=vague))
+    assert response.assessment_state == "abstained" and response.score is None
+    assert response.explanation == "The assistant didn't give a checkable answer."
+    assert "judge" not in client.calls and client.closed
+
+
+def test_extraction_prompt_asks_for_the_refusal_flag_and_no_self_claims():
+    from app.services.selfconsistency_service import EXTRACTION_SCHEMA
+
+    assert "refusal" in EXTRACTION_SCHEMA["required"]
+    assert EXTRACTION_SCHEMA["properties"]["refusal"] == {"type": "boolean"}
+    assert "Never extract claims about the assistant itself" in EXTRACT_SYSTEM
