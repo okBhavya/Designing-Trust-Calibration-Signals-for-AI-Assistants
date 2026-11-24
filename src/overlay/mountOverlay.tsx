@@ -1,12 +1,22 @@
 import { createRoot, type Root } from 'react-dom/client';
 import type { SignalResponse } from '../core/contracts';
 import { Overlay } from './Overlay';
+import type { OverlayEventType } from '../core/events';
+
+export interface OverlayContext {
+  answerHash: string;
+  onEvent?: (eventType: OverlayEventType) => void;
+}
 import styles from './overlay.css?inline';
 
 const overlayRoots = new WeakMap<HTMLElement, Root>();
 const overlayHosts = new WeakMap<HTMLElement, HTMLElement>();
 
-export function mountOverlay(answerContainer: HTMLElement, signal: SignalResponse): HTMLElement {
+export function mountOverlay(
+  answerContainer: HTMLElement,
+  signal: SignalResponse,
+  context?: OverlayContext,
+): HTMLElement {
   let host = overlayHosts.get(answerContainer);
   if (!host) {
     host = document.createElement('div');
@@ -27,6 +37,6 @@ export function mountOverlay(answerContainer: HTMLElement, signal: SignalRespons
     root = createRoot(shadow);
     overlayRoots.set(host, root);
   }
-  root.render(<Overlay signal={signal} />);
+  root.render(<Overlay key={context?.answerHash} signal={signal} onEvent={context?.onEvent} />);
   return host;
 }

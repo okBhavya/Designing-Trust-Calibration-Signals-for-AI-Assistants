@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import type { SignalResponse } from '../core/contracts';
+import type { OverlayEventType } from '../core/events';
 
 interface OverlayProps {
   signal: SignalResponse;
+  onEvent?: (eventType: OverlayEventType) => void;
 }
 
 const labels = { high: 'High confidence', medium: 'Medium confidence', low: 'Low confidence' };
 const prefersDark = () =>
   typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-export function Overlay({ signal }: OverlayProps) {
+export function Overlay({ signal, onEvent }: OverlayProps) {
   const [expanded, setExpanded] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [dark, setDark] = useState(prefersDark);
   const isMockSignal = signal.modelVersion.startsWith('mock-');
 
@@ -21,6 +24,12 @@ export function Overlay({ signal }: OverlayProps) {
     media.addEventListener('change', listener);
     return () => media.removeEventListener('change', listener);
   }, []);
+
+  useEffect(() => {
+    if (signal.status === 'signal') onEvent?.('signal_shown');
+  }, [signal.status, signal.modelVersion]);
+
+  if (dismissed) return null;
 
   const title =
     signal.status === 'checking'
@@ -49,9 +58,25 @@ export function Overlay({ signal }: OverlayProps) {
             type="button"
             className="calibrai-button"
             aria-expanded={expanded}
-            onClick={() => setExpanded((value) => !value)}
+            onClick={() => {
+              if (!expanded) onEvent?.('explanation_opened');
+              setExpanded(!expanded);
+            }}
           >
             {expanded ? 'Hide details' : 'Why?'}
+          </button>
+        )}
+        {signal.status === 'signal' && (
+          <button
+            type="button"
+            className="calibrai-button"
+            aria-label="Dismiss CalibrAI signal"
+            onClick={() => {
+              onEvent?.('signal_dismissed');
+              setDismissed(true);
+            }}
+          >
+            Dismiss
           </button>
         )}
       </div>
