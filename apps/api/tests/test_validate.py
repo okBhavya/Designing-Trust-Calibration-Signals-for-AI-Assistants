@@ -88,7 +88,7 @@ def test_analysis_on_synthetic_results_uses_wilson_and_reports_half_b():
     assert analysis["half_a"] + analysis["half_b"] == 60
     assert analysis["auroc"][0] > 0.9
     assert 0 <= analysis["ece"] <= 1 and 0 <= analysis["brier"] <= 1
-    assert all(row["ci"] is None or 0 <= row["ci"][0] <= row["ci"][1] <= 1 for row in analysis["tuned_table"])
+    assert all(row["ci"] is None or 0 <= row["ci"][0] <= row["ci"][1] <= 1 for row in analysis["half_b_table"])
     assert analysis["latency_p50"] == pytest.approx(1029.5)  # median of 1000-1039 and 1100-1119
 
 
@@ -224,3 +224,35 @@ def test_items_needing_label_review_stay_out_of_the_study_set(tmp_path, monkeypa
     assert "## Labels needing human review" in text
     assert f"| `{flagged}` | correct (exact) | high, 1.00 | possible gold-label error, needs human check |" in text
     assert f"Kept out for human review: `{flagged}`" in text
+
+
+def test_review_items_are_dropped_from_the_same_split_and_levels_keep_the_configured_thresholds(tmp_path, monkeypatch):
+    rng = random.Random(1)
+    results = [row(i, "correct", rng.choice([0.8, 1.0])) for i in range(40)]
+    results += [row(100 + i, "incorrect", rng.choice([0.0, 0.25, 1.0])) for i in range(20)]
+    results += [row(200, "not_attempted", None, level="abstained"), row(201, "not_attempted", 0.5)]
+    review = {"q-100": "possible gold-label error, needs human check", "q-101": "same"}
+
+    full = validate.analyze(results)
+    reviewed = validate.analyze(results, exclude=review)
+    _, b_full, _ = validate.split_eligible(results)
+    assert reviewed["half_a"] + reviewed["half_b"] == full["n_eligible"] - 2
+    assert reviewed["excluded"]["label needs human review"] == 2
+    # dropped after the split, not reshuffled
+    kept_b = [r["id"] for r in b_full if r["id"] not in review]
+    assert reviewed["half_b"] == len(kept_b)
+    assert full["thresholds"] == reviewed["thresholds"] == (0.80, 0.60)
+    assert sum(r["n"] for r in reviewed["production_table"]) == len(results) - 2
+    assert full["abstained_labels"] == {"not_attempted": 1}
+    assert full["unattempted_but_scored"] == ["q-201"]
+
+    monkeypatch.setattr(validate, "REPORT", tmp_path / "report.md")
+    text = validate.write_report(full, {"available": {"correct": 0, "incorrect": 0}}, False, len(results), False,
+                                 review, results, reviewed)
+    assert text.index("## Key findings") < text.index("## Run")
+    assert "ranks answers well but is poorly calibrated" in text
+    assert "so it is not applied" in text
+    assert "Refusals are abstained, not scored." in text and "`q-201`" in text
+    assert "reported but not applied" in text
+    assert "## All items vs. review items excluded" in text
+    assert "configured thresholds (0.80 / 0.60)" in text
