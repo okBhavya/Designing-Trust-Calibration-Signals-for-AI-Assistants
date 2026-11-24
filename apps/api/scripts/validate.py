@@ -468,18 +468,40 @@ def auroc_with_ci(labels: list[int], scores: list[float], resamples: int = 2000)
     return estimate, samples[int(0.025 * (len(samples) - 1))], samples[int(0.975 * (len(samples) - 1))]
 
 
-def analyze(results: list[dict]) -> dict:
+CONFIGURED_THRESHOLDS = (0.80, 0.60)  # the provider's defaults (selfconsistency_high/medium_threshold)
+
+
+def analyze(
+    results: list[dict], exclude: dict[str, str] | None = None, thresholds: tuple[float, float] = CONFIGURED_THRESHOLDS
+) -> dict:
+    """Metrics on the seeded split. Items in `exclude` are dropped from both halves after the split,
+    so a with/without comparison differs only by those items, not by a reshuffle. Levels use the
+    configured thresholds; the thresholds tuned on half A are reported but never applied."""
     from app.evaluation import calibration_metrics, fit_isotonic, risk_coverage
 
+    exclude = exclude or {}
     half_a, half_b, excluded = split_eligible(results)
-    high, medium, tuning_note = tune_thresholds(half_a)
+    dropped = sum(row["id"] in exclude for row in half_a + half_b)
+    if dropped:
+        excluded["label needs human review"] = dropped
+        half_a = [row for row in half_a if row["id"] not in exclude]
+        half_b = [row for row in half_b if row["id"] not in exclude]
+    kept = [row for row in results if row["id"] not in exclude]
+    high, medium = thresholds
+    tuned_high, tuned_medium, tuning_note = tune_thresholds(half_a)
     analysis: dict[str, Any] = {
         "n_results": len(results), "n_eligible": len(half_a) + len(half_b), "excluded": excluded,
-        "half_a": len(half_a), "half_b": len(half_b), "thresholds": (high, medium), "tuning_note": tuning_note,
+        "n_review_excluded": len(results) - len(kept),
+        "half_a": len(half_a), "half_b": len(half_b), "thresholds": (high, medium),
+        "tuned_thresholds": (tuned_high, tuned_medium), "tuning_note": tuning_note,
         "labels": Counter(row["label"] for row in results),
         "label_sources": Counter(row["label_source"] for row in results),
         "by_source": Counter((row["source"], row["label"]) for row in results),
-        "production_table": level_table(results, [row["level"] for row in results]),
+        "production_table": level_table(kept, [row["level"] for row in kept]),
+        "abstained_labels": Counter(row["label"] for row in kept if row["level"] == "abstained"),
+        "unattempted_but_scored": sorted(
+            row["id"] for row in kept if row["label"] == "not_attempted" and row["score"] is not None
+        ),
         "latency_p50": percentile([row["latency_ms"] for row in results], 0.5),
         "latency_p95": percentile([row["latency_ms"] for row in results], 0.95),
         "signal_cost_mean": _mean([row["cost_usd"]["signal"] for row in results]),
@@ -501,8 +523,10 @@ def analyze(results: list[dict]) -> dict:
     points = risk_coverage([bool(label) for label in labels_b], scores_b)
     analysis["risk_coverage"] = _risk_coverage_summary(points)
     analysis["aurc"] = sum(point.risk for point in points) / len(points)
-    analysis["tuned_table"] = level_table(half_b, [level_for(s, high, medium) for s in scores_b])
+    analysis["half_b_table"] = level_table(half_b, [level_for(s, high, medium) for s in scores_b])
     analysis["accuracy_b"] = sum(labels_b) / len(labels_b)
+    top = [label for label, score in zip(labels_b, scores_b) if score >= 1.0]
+    analysis["top_score"] = {"n": len(top), "correct": sum(top)}
     return analysis
 
 
@@ -683,7 +707,8 @@ def _review_section(label_review: dict[str, str], results: list[dict]) -> list[s
     lines = [
         "## Labels needing human review",
         "",
-        "These items stay in the metrics with their automatic label but are kept out of the study set.",
+        "Their automatic labels are kept (not relabelled). They are kept out of the study set, and the "
+        "metrics below are shown both with them and without them.",
         "",
         "| Item | Auto label | Signal | Note |",
         "|---|---|---|---|",
@@ -693,6 +718,89 @@ def _review_section(label_review: dict[str, str], results: list[dict]) -> list[s
         score = "n/a" if row["score"] is None else f"{row['score']:.2f}"
         lines.append(f"| `{item}` | {row['label']} ({row['label_source']}) | {row['level']}, {score} | {label_review[item]} |")
     return lines + [""]
+
+
+def _auroc_text(analysis: dict) -> str:
+    auroc = analysis.get("auroc")
+    return "n/a" if auroc is None else f"{_fmt(auroc[0], 2)} (95% CI {_fmt(auroc[1], 2)}-{_fmt(auroc[2], 2)})"
+
+
+def _level_accuracy(analysis: dict, level: str) -> str:
+    row = next((r for r in analysis["production_table"] if r["level"] == level), None)
+    return "n/a" if row is None or row["accuracy"] is None else f"{row['accuracy']:.2f} ({row['correct']}/{row['correct'] + row['incorrect']})"
+
+
+def _key_findings(analysis: dict, reviewed: dict | None) -> list[str]:
+    if not analysis.get("half_b") or analysis.get("auroc") is None:
+        return []
+    review_note = ""
+    if reviewed and reviewed.get("auroc") is not None:
+        review_note = (f" Without the {reviewed['n_review_excluded']} review items: AUROC {_auroc_text(reviewed)}, "
+                       f"ECE {_fmt(reviewed['ece'], 2)}.")
+    top = analysis["top_score"]
+    top_note = (f" {top['n']} of {analysis['half_b']} held-out answers scored 1.00, but only {top['correct']} of "
+                f"them ({top['correct'] / top['n']:.0%}) were correct." if top["n"] else "")
+    lines = [
+        "## Key findings",
+        "",
+        f"1. **The score ranks answers well but is poorly calibrated.** On half B, AUROC is {_auroc_text(analysis)}, "
+        f"but ECE is {_fmt(analysis['ece'], 2)}. The score is overconfident:{top_note} An answer the model gives "
+        "the same way every time looks consistent even when it is wrong; this is a known limitation of "
+        f"self-consistency.{review_note}",
+    ]
+    iso_ece, iso_brier = analysis.get("isotonic_ece"), analysis.get("isotonic_brier")
+    if iso_ece is not None:
+        brier_change = ("does not improve Brier" if iso_brier >= analysis["brier"] else "also lowers Brier")
+        lines.append(
+            f"2. **Isotonic calibration lowers ECE ({_fmt(analysis['ece'], 2)} to {_fmt(iso_ece, 2)}) but "
+            f"{brier_change} ({_fmt(analysis['brier'], 2)} to {_fmt(iso_brier, 2)}), so it is not applied.** "
+            f"The fit uses only {analysis['half_a']} answers from half A."
+        )
+    abstained = analysis["abstained_labels"]
+    committed = abstained.get("correct", 0) + abstained.get("incorrect", 0)
+    missed = analysis["unattempted_but_scored"]
+    lines.append(
+        f"3. **Refusals are abstained, not scored.** {sum(abstained.values())} answers abstained with no score; "
+        f"{committed} of them were committed answers that should have been scored."
+        + (f" {len(missed)} declined answer(s) still got a score: {', '.join(f'`{i}`' for i in missed)}." if missed else "")
+    )
+    tuned_high, tuned_medium = analysis["tuned_thresholds"]
+    high, medium = analysis["thresholds"]
+    collapsed = " The tuned high and medium thresholds are equal, so tuning leaves no medium band." if tuned_high == tuned_medium else ""
+    lines += [
+        f"4. **Threshold tuning on half A is reported but not applied.** It gives high >= {tuned_high:.2f}, "
+        f"medium >= {tuned_medium:.2f} ({analysis['tuning_note']}).{collapsed} Every level in this report uses "
+        f"the configured thresholds, high >= {high:.2f} and medium >= {medium:.2f}.",
+        "",
+    ]
+    return lines
+
+
+def _comparison_section(analysis: dict, reviewed: dict | None) -> list[str]:
+    if not reviewed:
+        return []
+    rows = [
+        ("Usable answers (half A / half B)", lambda a: f"{a['n_eligible']} ({a['half_a']} / {a['half_b']})"),
+        ("AUROC, 95% bootstrap CI (half B)", _auroc_text),
+        ("ECE, 10 bins (half B)", lambda a: _fmt(a.get("ece"))),
+        ("Brier (half B)", lambda a: _fmt(a.get("brier"))),
+        ("ECE / Brier after isotonic fit", lambda a: f"{_fmt(a.get('isotonic_ece'))} / {_fmt(a.get('isotonic_brier'))}"),
+        ("Area under risk-coverage curve", lambda a: _fmt(a.get("aurc"))),
+        ("Tuned thresholds (not applied)", lambda a: f"{a['tuned_thresholds'][0]:.2f} / {a['tuned_thresholds'][1]:.2f}"),
+        ("High accuracy, all evaluated answers", lambda a: _level_accuracy(a, "high")),
+        ("Low accuracy, all evaluated answers", lambda a: _level_accuracy(a, "low")),
+    ]
+    return [
+        "## All items vs. review items excluded",
+        "",
+        f"Same seeded split; the right column drops the {reviewed['n_review_excluded']} items listed above from both "
+        "halves. The other sections use all items.",
+        "",
+        "| Metric | All items | Review items excluded |",
+        "|---|---|---|",
+        *[f"| {name} | {value(analysis)} | {value(reviewed)} |" for name, value in rows],
+        "",
+    ]
 
 
 def _table_md(table: list[dict]) -> list[str]:
@@ -712,13 +820,18 @@ def write_report(
     diagram: bool,
     label_review: dict[str, str] | None = None,
     results: list[dict] | None = None,
+    reviewed: dict | None = None,
 ) -> str:
+    """`reviewed` is the analysis with the label-review items excluded, shown next to `analysis`."""
     high, medium = analysis["thresholds"]
     small = analysis["n_eligible"] < 60
     lines = [
         "# Self-consistency signal: validation report",
         "",
         f"Generated {datetime.now(timezone.utc).isoformat(timespec='minutes')} by `apps/api/scripts/validate.py`.",
+        "",
+        *_key_findings(analysis, reviewed),
+        "## Run",
         "",
         f"- Questions evaluated: **{analysis['n_results']} of {total_questions}**"
         + (" (partial run)" if analysis["n_results"] < total_questions else ""),
@@ -732,6 +845,7 @@ def write_report(
                   "number below as a smoke test of the pipeline, not as a measurement.", ""]
     lines += [
         *_review_section(label_review or {}, results or []),
+        *_comparison_section(analysis, reviewed),
         "## Exclusions from score-based metrics",
         "",
         f"{sum(analysis['excluded'].values())} of {analysis['n_results']} excluded:",
@@ -758,11 +872,13 @@ def write_report(
             f"| ECE / Brier after isotonic fit on half A | {_fmt(analysis.get('isotonic_ece'))} / {_fmt(analysis.get('isotonic_brier'))} |",
             f"| Area under risk-coverage curve (lower is better) | {_fmt(analysis['aurc'])} |",
             "",
-            f"Thresholds: high >= {high:.2f}, medium >= {medium:.2f} ({analysis['tuning_note']}).",
+            f"Levels use the configured thresholds, high >= {high:.2f} and medium >= {medium:.2f}. Tuning on half A "
+            f"gives {analysis['tuned_thresholds'][0]:.2f} / {analysis['tuned_thresholds'][1]:.2f} "
+            f"({analysis['tuning_note']}); that result is reported, not applied.",
             "",
-            "### Level x correctness, half B, tuned thresholds",
+            f"### Level x correctness, half B, configured thresholds ({high:.2f} / {medium:.2f})",
             "",
-            *_table_md(analysis["tuned_table"]),
+            *_table_md(analysis["half_b_table"]),
             "",
             "### Risk-coverage (half B)",
             "",
@@ -902,13 +1018,15 @@ def main() -> int:
     if not results:
         print("No results to analyse.", file=sys.stderr)
         return 1
-    analysis = analyze(results)
-    diagram = reliability_diagram(analysis, DIAGRAM)
     label_review = load_label_review()
+    analysis = analyze(results)
+    reviewed = analyze(results, exclude=label_review) if any(row["id"] in label_review for row in results) else None
+    diagram = reliability_diagram(analysis, DIAGRAM)
     items, study_info = select_study_items(results, exclude=label_review)
     if items is not None:
         STUDY.write_text(json.dumps(items, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print("\n" + write_report(analysis, study_info, items is not None, len(questions), diagram, label_review, results))
+    print("\n" + write_report(analysis, study_info, items is not None, len(questions), diagram, label_review, results,
+                              reviewed))
     return 0
 
 
