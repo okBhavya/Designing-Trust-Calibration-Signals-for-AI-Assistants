@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { requestBackendSignal } from '../src/core/backendSignal';
+import { BACKEND_SIGNAL_TIMEOUT_MS, requestBackendSignal } from '../src/core/backendSignal';
+import { mountOverlay } from '../src/overlay/mountOverlay';
 import type { CaptureRequest } from '../src/core/contracts';
 
 const request: CaptureRequest = {
@@ -71,5 +72,40 @@ describe('backend request safety', () => {
     await expect(requestBackendSignal(request, { ...config, sessionToken: '' })).rejects.toThrow(
       'participant ID and session token',
     );
+  });
+});
+
+describe('backend signal timeout', () => {
+  it('waits 25 s for slow providers, keeping the Checking overlay up, then aborts', async () => {
+    vi.useFakeTimers();
+    try {
+      let aborted = false;
+      const fetchImpl = vi.fn<typeof fetch>().mockImplementation(
+        (_url, init) =>
+          new Promise<Response>((_resolve, reject) => {
+            init?.signal?.addEventListener('abort', () => {
+              aborted = true;
+              reject(new DOMException('Aborted', 'AbortError'));
+            });
+          }),
+      );
+      const container = document.createElement('article');
+      document.body.append(container);
+      const host = mountOverlay(container, { status: 'checking', modelVersion: 'api' });
+
+      const pending = requestBackendSignal(request, config, fetchImpl);
+      const outcome = pending.then(() => 'resolved', () => 'rejected');
+
+      await vi.advanceTimersByTimeAsync(20_000);
+      expect(aborted).toBe(false);
+      expect(host.shadowRoot?.textContent).toContain('Checking answer');
+
+      await vi.advanceTimersByTimeAsync(BACKEND_SIGNAL_TIMEOUT_MS - 20_000);
+      expect(aborted).toBe(true);
+      await expect(outcome).resolves.toBe('rejected');
+      expect(BACKEND_SIGNAL_TIMEOUT_MS).toBe(25_000);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
