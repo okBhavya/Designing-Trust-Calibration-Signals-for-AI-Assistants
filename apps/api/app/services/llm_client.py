@@ -53,11 +53,12 @@ class AnthropicLLMClient:
         timeout_seconds: float,
         effort: Effort = "low",
         max_tokens: int = 16_000,
+        max_retries: int = 1,
     ):
         import anthropic
 
         self._anthropic = anthropic
-        self._client = anthropic.AsyncAnthropic(api_key=api_key, timeout=timeout_seconds, max_retries=1)
+        self._client = anthropic.AsyncAnthropic(api_key=api_key, timeout=timeout_seconds, max_retries=max_retries)
         self.model = model
         self._effort = effort
         self._max_tokens = max_tokens
