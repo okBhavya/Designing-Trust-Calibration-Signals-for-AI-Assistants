@@ -1,3 +1,6 @@
 {
-  "simpleqa-2564": "possible gold-label error, needs human check: the answer dates the Priority Enforcement Program to November 2014, while the gold answer (July 2009) may refer to Secure Communities; the question combines both programs"
+  "simpleqa-2564": "possible gold-label error, needs human check: the answer dates the Priority Enforcement Program to November 2014, while the gold answer (July 2009) may refer to Secure Communities; the question combines both programs",
+  "nq-511": "possible gold-label error, needs human check: the answer names Sojourner (Mars Pathfinder, July 1997) as the first rover on Mars; the gold answer (January 2004) is the Spirit/Opportunity landing",
+  "nq-3500": "possible gold-label error, needs human check: the answer says Army of Northern Virginia, the usual name of Lee's army at Gettysburg; the gold answer is the broader Confederate States Army",
+  "simpleqa-3208": "possible gold-label error, needs human check: the answer dates the apochromat to Zeiss around 1886; the gold answer is 1868, and sources disagree on the date"
 }

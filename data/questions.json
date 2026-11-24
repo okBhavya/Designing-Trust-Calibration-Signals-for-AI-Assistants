@@ -1,0 +1,462 @@
+[
+  {
+    "id": "simpleqa-157",
+    "domain": "TV shows",
+    "prompt": "In which episode and season of South Park is Mr. Mackey's first appearance? Please give me the number and title.",
+    "ai_answer": "Mr. Mackey first appeared in the Season 1 episode \"Weight Gain 4000.\" I believe it's Episode 2, but I'm not fully certain of the episode number, so you may want to verify it.",
+    "ground_truth": "Season 1, Episode 9: Mr. Hankey, the Christmas Poo",
+    "ai_is_correct": false,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"Mr. Mackey first appeared in the South Park episode \"Weight…\"."
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": "nq-1289",
+    "domain": "general knowledge",
+    "prompt": "who sang how can you mend a broken heart first",
+    "ai_answer": "\"How Can You Mend a Broken Heart\" was first recorded and released by the Bee Gees in 1971, featured on their album *Trafalgar*. The song was written by Barry Gibb, Robin Gibb, and Maurice Gibb, and it became a hit for the group, reaching the top of the charts in several countries.",
+    "ground_truth": "Bee Gees",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"How Can You Mend a Broken Heart was first recorded and…\"; 1 side detail not checked."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-3366",
+    "domain": "general knowledge",
+    "prompt": "who coined the phrase let them eat cake",
+    "ai_answer": "The phrase \"let them eat cake\" (in French, \"Qu'ils mangent de la brioche\") is traditionally attributed to Marie Antoinette, the Queen of France, though there's no solid evidence she actually said it. The line first appears in Jean-Jacques Rousseau's *Confessions*, written around 1765, when Rousseau recalled a \"great princess\" who heard peasants had no bread and suggested they eat brioche, and it was only later linked to Marie Antoinette, who was still a child in France at the time.",
+    "ground_truth": "Jean-Jacques Rousseau",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"The phrase \"let them eat cake\" is traditionally attributed…\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-1806",
+    "domain": "general knowledge",
+    "prompt": "when did end of the road come out",
+    "ai_answer": "\"The End of the Road\" is most famously the 1992 American film directed by Joseph Ruben? No, that's not right. The best-known title match is the 1944 novel \"The End of the Road\" by John Barth, published in 1958 as a second edition, and the 1970 film \"The End of the Road\" directed by Aram Avakian. Since the question is ambiguous, could you tell me which version you mean (a book, film, or song)? That would help me give you the exact year.",
+    "ground_truth": "1992",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "low",
+      "score": 0.2,
+      "flagged_sentence_indices": [
+        2
+      ],
+      "reason": "1 of 5 attempts agreed on \"The End of the Road is a 1944 novel by John Barth\"; 1 side detail not checked."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-341",
+    "domain": "general knowledge",
+    "prompt": "to transplant a nucleus from one cell to another cell a scientist would use",
+    "ai_answer": "A scientist would typically use **somatic cell nuclear transfer (SCNT)**, also called nuclear transplantation. In this technique, the nucleus is extracted from a donor cell with a micropipette and injected into an enucleated recipient cell (an egg cell whose own nucleus has been removed), often fused or activated with a brief electrical pulse or chemical treatment.",
+    "ground_truth": "somatic cell nuclear transfer",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"A scientist would use somatic cell nuclear transfer (SCNT)…\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-2563",
+    "domain": "general knowledge",
+    "prompt": "who wrote you must have been a beautiful baby",
+    "ai_answer": "\"You Must Have Been a Beautiful Baby\" is a 1938 song with lyrics by Johnny Mercer and music by Harry Warren. It was written for the film *Hollywood Hotel* and has since become a jazz and pop standard, recorded by many artists over the years.",
+    "ground_truth": "Johnny Mercer",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"The lyrics of \"You Must Have Been a Beautiful Baby\" were…\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "simpleqa-591",
+    "domain": "Geography",
+    "prompt": "What year was the municipality of Jenesano, Boyacá, Colombia, founded?",
+    "ai_answer": "Jenesano, a municipality in the Boyacá Department of Colombia, was founded in 1557 by Spanish conquistadors. I'm not fully certain of this date, though, so it would be worth verifying with an official source such as the municipal government's website or Colombian historical records.",
+    "ground_truth": "1828",
+    "ai_is_correct": false,
+    "signal": {
+      "level": "medium",
+      "score": 0.6,
+      "flagged_sentence_indices": [],
+      "reason": "3 of 5 attempts agreed on \"Jenesano was founded in 1557\"; 1 side detail not checked."
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": "nq-3125",
+    "domain": "general knowledge",
+    "prompt": "when did world war 2 officially start and end",
+    "ai_answer": "World War II officially began on September 1, 1939, when Nazi Germany invaded Poland, prompting Britain and France to declare war on Germany two days later. The war ended in Europe with Germany's unconditional surrender on May 8, 1945 (V-E Day), and in the Pacific with Japan's surrender announced on August 15, 1945, formally signed on September 2, 1945.",
+    "ground_truth": "1939",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"World War II officially began on September 1, 1939\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-3547",
+    "domain": "general knowledge",
+    "prompt": "who signed the largest on the declaration of independence",
+    "ai_answer": "John Hancock is traditionally credited with signing the Declaration of Independence in the largest, most prominent handwriting, which is why his name became a synonym for a signature. The story goes that he wanted King George III to be able to read it without his spectacles. Historians note that his signature is indeed large and centered, though it's not documented that he intended it as a special gesture.",
+    "ground_truth": "John Hancock",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"John Hancock is traditionally credited with signing the…\"; 3 side details not checked."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-731",
+    "domain": "general knowledge",
+    "prompt": "what are the functions of the human skeleton",
+    "ai_answer": "The human skeleton provides structural support and shape to the body, and it protects vital organs such as the brain, heart, and lungs. It also works with muscles to enable movement, serving as levers that muscles pull on. Additionally, bones store minerals like calcium and phosphorus, and the bone marrow inside many bones produces blood cells.",
+    "ground_truth": "endocrine regulation",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"The human skeleton provides structural support and shape to…\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-3234",
+    "domain": "general knowledge",
+    "prompt": "love is not love that alters when it alteration finds meaning",
+    "ai_answer": "This line is from Shakespeare's Sonnet 116: \"Love is not love / Which alters when it alteration finds.\" The speaker argues that true love is constant and does not change when it encounters obstacles or shifts in the beloved. In the poem, love is described as an \"ever-fixed mark\" that guides lost ships and cannot be shaken by time or circumstance.",
+    "ground_truth": "Sonnet 116",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"The line \"Love is not love which alters when it alteration…\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-1109",
+    "domain": "general knowledge",
+    "prompt": "when did the first train run in england",
+    "ai_answer": "The first passenger railway in England, the Liverpool and Manchester Railway, opened on 15 September 1830, and it was the first intercity line to rely entirely on steam locomotives. Earlier, the Stockton and Darlington Railway had opened in 1825, primarily for freight, though it also carried passengers using horse-drawn and steam-powered trains. So the first train in England ran in 1825, and the first fully steam-powered passenger service followed in 1830.",
+    "ground_truth": "1560s",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [
+        0
+      ],
+      "reason": "All 5 attempts agreed on \"The Stockton and Darlington Railway opened in 1825\"; 2 side details not checked."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "simpleqa-3000",
+    "domain": "Music",
+    "prompt": "What is the name of the university where American music producer George Avakian began teaching in 1948?",
+    "ai_answer": "George Avakian began teaching in 1948 at Yale University, where he taught a course on jazz. He was a Columbia Records producer known for jazz and other recordings, and he later became a respected author and historian of jazz. I'm not fully certain of this detail, so it's worth confirming with a dedicated biography if you need it for something formal.",
+    "ground_truth": "New York University.",
+    "ai_is_correct": false,
+    "signal": {
+      "level": "low",
+      "score": 0.2,
+      "flagged_sentence_indices": [
+        0
+      ],
+      "reason": "1 of 5 attempts agreed on \"George Avakian began teaching in 1948 at Yale University\"; 1 side detail not checked."
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": "nq-2892",
+    "domain": "general knowledge",
+    "prompt": "when did south sudan join east african community",
+    "ai_answer": "South Sudan joined the East African Community (EAC) on April 15, 2016, becoming the community's sixth member state. It gained independence from Sudan in July 2011 and was admitted to the EAC shortly after the bloc's approval in 2016.",
+    "ground_truth": "April 2016",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"South Sudan joined the East African Community on April 15,…\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-1353",
+    "domain": "general knowledge",
+    "prompt": "when was i look at the world poem written",
+    "ai_answer": "\"I Look at the World\" is a poem by Ilse Weber, the Czech-German Jewish poet. I'm not certain of the exact date it was written, but it dates from her time in the Theresienstadt ghetto, around 1941 to 1944, where she wrote many poems for the children she cared for before being deported to Auschwitz in 1944. It was published posthumously, and it is often dated to 1941 or 1942 in some sources, so I'd recommend checking a reliable source for the precise year.",
+    "ground_truth": "30–31 October 2000",
+    "ai_is_correct": false,
+    "signal": {
+      "level": "insufficient_evidence",
+      "score": null,
+      "flagged_sentence_indices": [],
+      "reason": "None of the 5 claims was mentioned by at least 2 of the 5 independent attempts, so none could be checked."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-2767",
+    "domain": "general knowledge",
+    "prompt": "what was the first star trek enterprise ship",
+    "ai_answer": "The first starship named Enterprise in the Star Trek franchise was the USS Enterprise (NCC-1701), commanded by Captain James T. Kirk in the original 1966 series. Its designation was NCC-1701, and it was introduced as the flagship of the United Federation of Planets. The name had also been used earlier in the fictional Star Trek timeline, but this vessel is the first one shown on screen.",
+    "ground_truth": "NCC-1701",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"The first starship named Enterprise shown in Star Trek is…\"; 1 side detail not checked."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-3145",
+    "domain": "general knowledge",
+    "prompt": "where is nuclear energy used most in the world",
+    "ai_answer": "Nuclear energy is used most in the United States, which has the largest number of nuclear reactors and generates the most nuclear electricity in absolute terms. France is the most nuclear-dependent major country, with nuclear power supplying roughly two-thirds or more of its electricity. Other major users include China, Russia, South Korea, and Japan.",
+    "ground_truth": "United States",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"The United States generates more nuclear electricity in…\"; 1 side detail not checked."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-3536",
+    "domain": "general knowledge",
+    "prompt": "who said some are born great in twelfth night",
+    "ai_answer": "The line \"Some are born great, some achieve greatness, and some have greatness thrust upon 'em\" is spoken by Malvolio in Shakespeare's *Twelfth Night* (Act 2, Scene 5), in the letter scene where he reads the forged letter that he believes is from Olivia. The line is a sample of his self-aggrandizing fantasies about rising in social rank.",
+    "ground_truth": "Malvolio",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"The line \"Some are born great, some achieve greatness, and…\"; 1 side detail not checked."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-1000",
+    "domain": "general knowledge",
+    "prompt": "what does g stand for in baseball stats",
+    "ai_answer": "In baseball statistics, \"G\" stands for \"Games,\" which counts the number of games a player or team has appeared in. For pitchers, it refers to games pitched, and for hitters, it refers to games played in the field or as a batter.",
+    "ground_truth": "Games",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"In baseball statistics, G stands for Games\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-179",
+    "domain": "general knowledge",
+    "prompt": "where do they put the tomb vampires in order to burn them during founders day",
+    "ai_answer": "In *The Vampire Diaries*, the tomb vampires are kept in an underground vault or cellar beneath Mystic Falls, which the Founders' Council uses to hold them until the annual Founders' Day ceremony. I'm not certain of the exact location in the show, so if you need a precise detail, check the episode where Founders' Day is featured.",
+    "ground_truth": "the Gilbert building",
+    "ai_is_correct": false,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"In The Vampire Diaries, the tomb vampires are kept in an…\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "simpleqa-4212",
+    "domain": "Science and technology",
+    "prompt": "What watch company made the world's first computerized diver's watch?",
+    "ai_answer": "The first computerized diver's watch is generally credited to Seiko, which released the Seiko Divers 150M \"Computer Diver\" in 1981 (the Seiko Computer Diver's watch, model 0633-5009). Seiko's Quartz-era innovation combined a diver's timing functions with a digital computer, making it one of the earliest electronic dive computers in a wristwatch form.",
+    "ground_truth": "Seiko",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"Seiko is generally credited with making the first…\"; 3 side details not checked."
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": "nq-2325",
+    "domain": "general knowledge",
+    "prompt": "where does fungi go on a food web",
+    "ai_answer": "Fungi are primarily decomposers in a food web, breaking down dead organic matter like fallen leaves, dead animals, and waste to recycle nutrients back into the soil. Some fungi, such as mushrooms and molds, feed on dead material, while others form mutualistic relationships with plant roots (mycorrhizae) or act as parasites. Because they return nutrients to producers and are eaten by some animals, fungi occupy a key role linking dead material to the rest of the ecosystem.",
+    "ground_truth": "the end",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"Fungi are primarily decomposers in a food web\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-3586",
+    "domain": "general knowledge",
+    "prompt": "when did the first pair of yeezys come out",
+    "ai_answer": "The first Yeezy shoe, the Adidas Yeezy Boost 750 \"Light Brown\" (often called the \"Chocolate\"), was released on November 2, 2015... Note that the first Yeezy sneaker was actually the Yeezy 750 Boost, which debuted in a limited release that year, following Kanye West's collaboration with Adidas. Its original Yeezy colorway had been previewed earlier, and it became a major hit that kicked off the Yeezy line.",
+    "ground_truth": "February 14, 2015",
+    "ai_is_correct": false,
+    "signal": {
+      "level": "low",
+      "score": 0.2,
+      "flagged_sentence_indices": [
+        0
+      ],
+      "reason": "1 of 5 attempts agreed on \"The first Yeezy shoe, the Adidas Yeezy Boost 750 \"Light…\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "simpleqa-4004",
+    "domain": "Science and technology",
+    "prompt": "In what year was the praying mantis species Eremiaphila arabica described by Saussure?",
+    "ai_answer": "*Eremiaphila arabica* was described by Henri de Saussure in 1872. It is a praying mantis in the family Eremiaphilidae. I'm fairly confident of the year, but you may want to verify it against a taxonomic database such as Mantodea Species File.",
+    "ground_truth": "1871",
+    "ai_is_correct": false,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"Eremiaphila arabica was described by Henri de Saussure\"; 1 side detail not checked."
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": "nq-2162",
+    "domain": "general knowledge",
+    "prompt": "which domain of life are humans members of",
+    "ai_answer": "Humans belong to the domain Eukarya, the domain of life whose cells contain a nucleus and other membrane-bound organelles. This places us alongside animals, plants, fungi, and protists. Our domain sits within the three-domain system, which also includes Bacteria and Archaea.",
+    "ground_truth": "Eukarya",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"Humans belong to the domain Eukarya\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-3140",
+    "domain": "general knowledge",
+    "prompt": "three act puccini opera first performed in 1900",
+    "ai_answer": "The opera you're thinking of is Giacomo Puccini's *Tosca*, which premiered at the Teatro Costanzi in Rome on January 14, 1900. Set in Rome in June 1800, it tells the dramatic story of the singer Floria Tosca, her painter lover Mario Cavaradossi, and the corrupt police chief Scarpia. It is one of the most frequently performed operas in the standard repertoire.",
+    "ground_truth": "Tosca",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"The opera Tosca is by Giacomo Puccini\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "simpleqa-405",
+    "domain": "Sports",
+    "prompt": "In November 2008, which organization ranked Andrew Tate the seventh-best light heavyweight kickboxer in the United Kingdom?",
+    "ai_answer": "In November 2008, Andrew Tate was ranked the seventh-best light heavyweight kickboxer in the United Kingdom by the Beckett ranking system, a kickboxing rankings list. I'm not fully certain of this detail, so you may want to check it against a primary source.",
+    "ground_truth": "International Sport Kickboxing Association (ISKA)",
+    "ai_is_correct": false,
+    "signal": {
+      "level": "insufficient_evidence",
+      "score": null,
+      "flagged_sentence_indices": [],
+      "reason": "None of the 2 claims was mentioned by at least 2 of the 5 independent attempts, so none could be checked."
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": "nq-1879",
+    "domain": "general knowledge",
+    "prompt": "suffix applied to the end of the name of enzymes",
+    "ai_answer": "The suffix is \"-ase.\" It is added to the end of a substrate's name, or to a description of its action, to form the name of an enzyme. For example, lactose yields \"lactase,\" protein yields \"protease,\" and hydrolysis-catalyzing enzymes are often named with the \"-ase\" ending.",
+    "ground_truth": "-ase",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"The suffix used for enzyme names is \"-ase\"\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-1001",
+    "domain": "general knowledge",
+    "prompt": "who was the last nba player to get drafted out of high school",
+    "ai_answer": "The last player drafted directly out of high school was Korleone Young, selected by the Dallas Mavericks in the 2005 NBA Draft. Since then, the NBA has required players to be at least one year removed from high school, with the age-19 rule, so no one has been drafted straight out of high school since.",
+    "ground_truth": "Thon Maker",
+    "ai_is_correct": false,
+    "signal": {
+      "level": "low",
+      "score": 0.0,
+      "flagged_sentence_indices": [
+        0
+      ],
+      "reason": "0 of 5 attempts agreed on \"The last player drafted directly out of high school was…\"."
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "nq-2561",
+    "domain": "general knowledge",
+    "prompt": "where would a subcutaneous injection be made in the skin",
+    "ai_answer": "A subcutaneous injection is typically given into the fatty layer just beneath the skin, most commonly in the abdomen (at least two inches away from the navel), the outer thighs, the back of the upper arms, or the upper outer buttocks. The site should be rotated within the same area to prevent tissue damage and lipodystrophy. Needles are usually inserted at a 45 to 90 degree angle, depending on the patient's body size and needle length.",
+    "ground_truth": "the subcutis",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"A subcutaneous injection is given into the fatty layer just…\"."
+    },
+    "difficulty": "standard"
+  }
+]
