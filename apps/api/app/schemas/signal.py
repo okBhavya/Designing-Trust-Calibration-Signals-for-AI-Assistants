@@ -61,7 +61,8 @@ class SignalResponse(BaseModel):
     status: Literal["signal"] = "signal"
     confidence: Confidence | None = None
     assessment_state: AssessmentState = Field(default="abstained", alias="assessmentState")
-    score: float = Field(ge=0, le=1)
+    # None when no score is meaningful (insufficient_evidence, unavailable, abstained).
+    score: float | None = Field(default=None, ge=0, le=1)
     sentence_flags: list[SentenceFlag] = Field(default_factory=list, alias="sentenceFlags")
     claim_assessments: list[ClaimAssessment] = Field(default_factory=list, alias="claimAssessments")
     explanation: str = Field(max_length=1_000)

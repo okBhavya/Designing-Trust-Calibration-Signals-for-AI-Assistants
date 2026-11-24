@@ -27,7 +27,8 @@ export interface SignalResponse {
   status: SignalStatus;
   confidence?: ConfidenceLevel;
   assessmentState?: AssessmentState;
-  score?: number;
+  /** null when no score is meaningful (insufficient evidence, unavailable). */
+  score?: number | null;
   sentenceFlags?: Array<{
     sentenceIndex: number;
     label: string;

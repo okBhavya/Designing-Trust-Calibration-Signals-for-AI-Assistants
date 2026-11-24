@@ -208,11 +208,11 @@ def verify_claim(claim: Claim, sources: tuple[EvidenceSource, ...]) -> Verificat
     return Verification(claim, "insufficient_evidence", "none", 1.0, (), (), "No sufficient evidence was available.")
 
 
-def aggregate(verifications: tuple[Verification, ...]) -> tuple[str, str, float]:
+def aggregate(verifications: tuple[Verification, ...]) -> tuple[str, str, float | None]:
     if not verifications:
-        return "abstained", "No independently verifiable claims were extracted.", 0.0
+        return "abstained", "No independently verifiable claims were extracted.", None
     if all(item.outcome == "insufficient_evidence" for item in verifications):
-        return "insufficient_evidence", "Available evidence cannot establish these claims.", 0.0
+        return "insufficient_evidence", "Available evidence cannot establish these claims.", None
     denominator = sum(MATERIALITY_WEIGHTS[item.claim.materiality] for item in verifications)
     supported = sum(
         MATERIALITY_WEIGHTS[item.claim.materiality] for item in verifications if item.outcome == "supported"
@@ -241,7 +241,7 @@ class ReliabilityFixtureProvider:
         started = perf_counter()
         if not request.answer:
             return SignalResponse(
-                confidence=None, assessmentState="unavailable", score=0,
+                confidence=None, assessmentState="unavailable", score=None,
                 explanation="An answer was not available for evaluation.",
                 modelVersion="reliability-fixture-v1",
                 processingLatencyMs=0,
