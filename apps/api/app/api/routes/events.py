@@ -5,7 +5,7 @@ from app.core.auth import AuthenticatedSession, require_session
 from app.database.connection import get_db
 from app.database.models import SignalEvent
 from app.schemas.events import EventRequest, EventResponse
-from app.services.consent_service import get_participant
+from app.services.consent_service import require_capture_consent
 
 router = APIRouter(prefix="/v1")
 
@@ -20,7 +20,7 @@ def event(
         from fastapi import HTTPException
 
         raise HTTPException(status_code=403, detail="Participant does not match authenticated session")
-    participant = get_participant(db, request.participant_id)
+    participant = require_capture_consent(db, request.participant_id)
     record = SignalEvent(
         participant_id=participant.id,
         session_id=request.session_id,
