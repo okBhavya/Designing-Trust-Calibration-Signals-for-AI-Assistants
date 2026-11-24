@@ -137,6 +137,17 @@ def test_duplicate_signal_returns_stored_response(client, auth_headers, monkeypa
     assert revisit.json() == first.json()
 
 
+def test_events_are_rejected_without_current_consent(client, auth_headers):
+    participant_id = uuid4()
+    headers = auth_headers(participant_id)
+    event = {"participant_id": str(participant_id), "event_type": "signal_shown", "platform": "claude"}
+    assert client.post("/v1/events", json=event, headers=headers).status_code == 403
+    assert consent(client, participant_id, headers).status_code == 200
+    assert client.post("/v1/events", json=event, headers=headers).status_code == 200
+    assert consent(client, participant_id, headers, status="withdrawn").status_code == 200
+    assert client.post("/v1/events", json=event, headers=headers).status_code == 403
+
+
 def test_rate_limit(client, auth_headers, monkeypatch):
     from app.config import get_settings
     from app.core.rate_limit import limiter
