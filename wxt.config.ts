@@ -20,6 +20,8 @@ export default defineConfig({
       'https://claude.ai/*',
       'https://gemini.google.com/*',
       'http://127.0.0.1:8000/*',
+      // Alternative local port for when another dev server already holds 8000.
+      'http://127.0.0.1:8010/*',
       'https://api.calibrai.example/*',
     ],
     action: {
