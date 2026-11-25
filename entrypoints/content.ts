@@ -78,7 +78,11 @@ export default defineContentScript({
           console.error('CalibrAI signal processing failed', error);
           diagnostic('signal-failed', { platform: detected.platform });
           duplicates.forget(detected.container);
-          mountOverlay(target, { status: 'error', modelVersion: placeholderVersion });
+          // The answer is forgotten above, so a fresh scan captures and checks it again.
+          mountOverlay(target, { status: 'error', modelVersion: placeholderVersion }, {
+            answerHash,
+            onRetry: () => scheduler.scanNow(),
+          });
         }
         host.dataset.answerHash = answerHash;
       }
