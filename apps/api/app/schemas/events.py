@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.schemas.signal import Platform, AnswerHash
 
-EventType = Literal["signal_shown", "explanation_opened", "signal_dismissed", "signal_hovered"]
+EventType = Literal["signal_shown", "explanation_opened", "signal_dismissed", "signal_hovered", "tooltip_opened"]
 
 
 class EventRequest(BaseModel):
