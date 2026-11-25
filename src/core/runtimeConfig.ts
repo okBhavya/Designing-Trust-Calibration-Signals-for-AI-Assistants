@@ -7,9 +7,12 @@ export interface ExtensionRuntimeConfig {
   sessionToken: string;
 }
 
+/** The deployed API (WXT_API_ORIGIN at build time), else the local development API. */
+export const DEFAULT_API_BASE_URL: string = import.meta.env.WXT_API_ORIGIN?.trim() || 'http://127.0.0.1:8000';
+
 export const defaultRuntimeConfig: ExtensionRuntimeConfig = {
   mode: 'mock',
-  apiBaseUrl: 'http://127.0.0.1:8000',
+  apiBaseUrl: DEFAULT_API_BASE_URL,
   participantId: '',
   sessionToken: '',
 };
