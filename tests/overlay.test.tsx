@@ -206,8 +206,14 @@ describe('host theme detection', () => {
 });
 
 describe('overlay colour tokens', () => {
+  it('overlay.css takes its tokens from tokens.css', () => {
+    const overlayCss = readFileSync(resolve(process.cwd(), 'src/overlay/overlay.css'), 'utf8');
+    expect(overlayCss).toContain("@import './tokens.css';");
+    expect(overlayCss).not.toMatch(/--c-text:/);
+  });
+
   // Read from disk: vitest stubs CSS imports, even ?raw ones.
-  const css = readFileSync(resolve(process.cwd(), 'src/overlay/overlay.css'), 'utf8');
+  const css = readFileSync(resolve(process.cwd(), 'src/overlay/tokens.css'), 'utf8');
   const block = (selector: string) => {
     const start = css.indexOf(`${selector} {`);
     return css.slice(start, css.indexOf('}', start));
@@ -221,8 +227,8 @@ describe('overlay colour tokens', () => {
   };
 
   it.each([
-    ['light', '.calibrai-overlay', ['#ffffff', '#faf9f5']],
-    ['dark', ".calibrai-overlay[data-theme='dark']", ['#212121', '#262624', '#1b1c1d']],
+    ['light', '.calibrai-tokens', ['#ffffff', '#faf9f5']],
+    ['dark', ".calibrai-tokens[data-theme='dark']", ['#212121', '#262624', '#1b1c1d']],
   ])('keeps every %s text token at 4.5:1 or more', (_name, selector, hostBackgrounds) => {
     const theme = tokens(block(selector));
     const backgrounds = [theme['c-surface'], theme['c-surface-hover'], ...hostBackgrounds];
