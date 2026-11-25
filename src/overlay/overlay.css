@@ -1,8 +1,10 @@
 /*
  * CalibrAI overlay. Lives inside a Shadow DOM, so nothing here leaks into the host page.
- * Spacing sits on a 4px grid. Every text token is at least 4.5:1 against the surface, the
- * hover surface and the ChatGPT/Claude/Gemini page backgrounds in its theme.
+ * Spacing sits on a 4px grid. The light/dark colour tokens live in tokens.css (shared with the
+ * study harness).
  */
+
+@import './tokens.css';
 
 :host {
   all: initial;
@@ -11,22 +13,6 @@
 }
 
 .calibrai-overlay {
-  /* Light theme tokens. */
-  --c-surface: #ffffff;
-  --c-surface-hover: #f4f4f5;
-  --c-hover: rgba(0, 0, 0, 0.06);
-  --c-border: rgba(0, 0, 0, 0.1);
-  --c-text: #1f2328;
-  --c-muted: #5b616b;
-  --c-high: #1d7a45;
-  --c-medium: #8a5300;
-  --c-low: #b3361b;
-  --c-neutral: #5b616b;
-  --c-focus: #2563eb;
-  --c-shadow-pill: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --c-shadow-panel: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.05);
-  --tone: var(--c-neutral);
-
   box-sizing: border-box;
   max-width: calc(var(--calibrai-inset, 0px) + var(--calibrai-column, 100%));
   margin: 4px 0 8px;
@@ -37,23 +23,6 @@
   line-height: 20px;
   text-align: left;
   -webkit-font-smoothing: antialiased;
-}
-
-.calibrai-overlay[data-theme='dark'] {
-  --c-surface: #2a2a2d;
-  --c-surface-hover: #343438;
-  --c-hover: rgba(255, 255, 255, 0.08);
-  --c-border: rgba(255, 255, 255, 0.12);
-  --c-text: #ececee;
-  --c-muted: #a9acb3;
-  --c-high: #62c98d;
-  --c-medium: #e3b04f;
-  --c-low: #f08a6c;
-  --c-neutral: #a9acb3;
-  --c-focus: #8ab4f8;
-  --c-shadow-pill: none;
-  --c-shadow-panel: none;
-  color-scheme: dark;
 }
 
 [data-tone='high'] { --tone: var(--c-high); }
