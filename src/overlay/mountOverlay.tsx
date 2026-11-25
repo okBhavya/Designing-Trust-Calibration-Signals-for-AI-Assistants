@@ -3,9 +3,13 @@ import type { SignalResponse } from '../core/contracts';
 import { Overlay } from './Overlay';
 import type { OverlayEventType } from '../core/events';
 
+export type { OverlayProps } from './Overlay';
+
 export interface OverlayContext {
   answerHash: string;
   onEvent?: (eventType: OverlayEventType) => void;
+  /** Shows a retry button on the "couldn't check" state. */
+  onRetry?: () => void;
 }
 import styles from './overlay.css?inline';
 
@@ -37,6 +41,8 @@ export function mountOverlay(
     root = createRoot(shadow);
     overlayRoots.set(host, root);
   }
-  root.render(<Overlay key={context?.answerHash} signal={signal} onEvent={context?.onEvent} />);
+  root.render(
+    <Overlay key={context?.answerHash} signal={signal} onEvent={context?.onEvent} onRetry={context?.onRetry} />,
+  );
   return host;
 }
