@@ -44,7 +44,7 @@ describe('signal response validation', () => {
       };
       expect(mountOverlay(first, signal)).not.toBe(mountOverlay(second, signal));
       await new Promise((resolve) => setTimeout(resolve, 0));
-      expect(mountOverlay(first, signal).shadowRoot?.textContent).toContain('High confidence');
+      expect(mountOverlay(first, signal).shadowRoot?.textContent).toContain('Likely reliable');
     });
   });
 });
