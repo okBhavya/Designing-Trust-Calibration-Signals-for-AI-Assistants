@@ -55,6 +55,17 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
 
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def use_the_installed_postgres_driver(cls, value: str) -> str:
+        """Hosts such as Render hand out postgres:// or postgresql:// URLs, which SQLAlchemy maps to
+        psycopg2. Only psycopg 3 is installed, so name it explicitly."""
+        if isinstance(value, str):
+            for prefix in ("postgres://", "postgresql://"):
+                if value.startswith(prefix):
+                    return "postgresql+psycopg://" + value[len(prefix):]
+        return value
+
     @field_validator("study_enrollment_code", mode="before")
     @classmethod
     def empty_study_code_is_unset(cls, value):
