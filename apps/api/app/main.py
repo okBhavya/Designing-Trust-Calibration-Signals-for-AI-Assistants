@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routes import config, consent, events, health, participants, session, signal
+from app.api.routes import config, consent, events, health, participants, session, signal, study
 from app.config import get_settings
 from app.core.exceptions import ApiError
 
@@ -13,7 +13,7 @@ def create_app() -> FastAPI:
     app = FastAPI(title="CalibrAI API", version="0.1.0")
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.api_origins,
+        allow_origins=settings.cors_origins,
         allow_credentials=False,
         allow_methods=["GET", "POST", "DELETE"],
         allow_headers=["Authorization", "Content-Type"],
@@ -42,6 +42,7 @@ def create_app() -> FastAPI:
     app.include_router(config.router)
     app.include_router(participants.router)
     app.include_router(session.router)
+    app.include_router(study.router)
     return app
 
 
