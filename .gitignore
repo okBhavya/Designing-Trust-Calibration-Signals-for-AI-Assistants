@@ -6,3 +6,5 @@ __pycache__
 .venv
 apps/api/*.db
 .env
+apps/api/exports/
+apps/study/dist
