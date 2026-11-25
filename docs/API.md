@@ -15,6 +15,27 @@ enum and adding an extension adapter, not changing signal evaluation.
   condition and feature flags.
 - `DELETE /v1/participant/{participant_id}` — delete participant data through
   database cascade relationships.
+- `POST /v1/study/enroll` — study harness only. Takes the study enrollment code
+  (`CALIBRAI_STUDY_ENROLLMENT_CODE`, not the extension's enrollment secret), the
+  consent version the participant was shown and `consent: true`. Creates a
+  pseudonymous participant with that consent recorded, assigns the least-filled
+  condition (`baseline`, `A` or `C`, random tie-break) and returns a session
+  token. 503 when no code is configured, 401 for a wrong code, 409 when the
+  consent version is not the current one.
+- `POST /v1/study/trials` — one main trial (practice trials are not sent):
+  `question_id`, `position`, `condition`, `ai_correct`, `signal_level`,
+  `signal_score`, `shown_at`, `decided_at`, `decision` (`accept`/`reject`),
+  `self_confidence` (1-5), `final_correct`. Requires current consent; the
+  condition must be the assigned one.
+- `POST /v1/study/questionnaire` — `demographics` (`age_band`, `ai_experience`
+  1-5) or `trust` (`trust_1`..`trust_5`, Likert 1-7). Requires current consent.
+
+Trial and questionnaire posts are idempotent: re-sending a stored record returns
+200 with `created: false`; sending different answers for a stored one returns 409.
+`/v1/events` also accepts `tooltip_opened` for the harness's sentence tooltips.
+`GET /v1/config` reports feature flags derived from the deployment's settings.
+`apps/api/scripts/export_study.py` writes participants, trials, events and
+questionnaires as CSV for consenting study participants only.
 
 `POST /v1/signal` accepts the same `platform`, `prompt`, `answer`, and
 `answerHash` data represented by the extension capture protocol, with
