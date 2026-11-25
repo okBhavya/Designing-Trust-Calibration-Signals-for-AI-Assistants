@@ -119,7 +119,9 @@ def test_study_set_has_21_correct_and_9_incorrect_with_the_measured_mix():
     # Not a perfect signal: its hit rate on the 30 matches what was measured.
     assert info["study_hit_rate"] == pytest.approx(info["expected_hit_rate_at_21_9"], abs=0.05)
     assert set(items[0]) == {"id", "domain", "prompt", "ai_answer", "ground_truth", "ai_is_correct", "signal", "difficulty"}
-    assert set(items[0]["signal"]) == {"level", "score", "flagged_sentence_indices", "reason"}
+    assert set(items[0]["signal"]) == {
+        "level", "score", "flagged_sentence_indices", "reason", "sentence_flags", "claim_assessments", "model_version",
+    }
 
 
 def test_study_set_is_not_built_without_nine_real_wrong_answers():
