@@ -312,3 +312,16 @@ def test_export_writes_study_csvs_without_personal_data(study, auth_headers, tmp
     assert events[0]["event_type"] == "tooltip_opened" and events[0]["sentence_index"] == "0"
     items = read_csv(tmp_path / "questionnaires.csv")
     assert [row["item"] for row in items] == [f"trust_{i}" for i in range(1, 6)]
+
+
+@pytest.mark.parametrize(
+    "url,expected",
+    [
+        ("postgres://u:p@host:5432/db", "postgresql+psycopg://u:p@host:5432/db"),
+        ("postgresql://u:p@host/db", "postgresql+psycopg://u:p@host/db"),
+        ("postgresql+psycopg://u:p@host/db", "postgresql+psycopg://u:p@host/db"),
+        ("sqlite:///./calibrai.db", "sqlite:///./calibrai.db"),
+    ],
+)
+def test_hosted_postgres_urls_use_psycopg3(url, expected):
+    assert Settings(database_url=url).database_url == expected
