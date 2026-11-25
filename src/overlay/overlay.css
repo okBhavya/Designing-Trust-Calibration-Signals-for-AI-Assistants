@@ -1,65 +1,381 @@
+/*
+ * CalibrAI overlay. Lives inside a Shadow DOM, so nothing here leaks into the host page.
+ * Spacing sits on a 4px grid. Every text token is at least 4.5:1 against the surface, the
+ * hover surface and the ChatGPT/Claude/Gemini page backgrounds in its theme.
+ */
+
 :host {
   all: initial;
   display: block;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: inherit;
 }
 
 .calibrai-overlay {
+  /* Light theme tokens. */
+  --c-surface: #ffffff;
+  --c-surface-hover: #f4f4f5;
+  --c-hover: rgba(0, 0, 0, 0.06);
+  --c-border: rgba(0, 0, 0, 0.1);
+  --c-text: #1f2328;
+  --c-muted: #5b616b;
+  --c-high: #1d7a45;
+  --c-medium: #8a5300;
+  --c-low: #b3361b;
+  --c-neutral: #5b616b;
+  --c-focus: #2563eb;
+  --c-shadow-pill: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --c-shadow-panel: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.05);
+  --tone: var(--c-neutral);
+
   box-sizing: border-box;
-  margin: 8px 0 2px;
-  max-width: 420px;
-  padding: 8px 10px;
-  border: 1px solid #d6dae1;
-  border-radius: 8px;
-  color: #252a34;
-  background: #fff;
-  font-size: 12px;
-  line-height: 1.4;
-  transition: background-color .15s ease, border-color .15s ease;
+  max-width: calc(var(--calibrai-inset, 0px) + var(--calibrai-column, 100%));
+  margin: 4px 0 8px;
+  padding-left: var(--calibrai-inset, 0px);
+  color: var(--c-text);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  text-align: left;
+  -webkit-font-smoothing: antialiased;
 }
 
-.calibrai-overlay.dark {
-  border-color: #4a5260;
-  color: #edf0f5;
-  background: #242832;
+.calibrai-overlay[data-theme='dark'] {
+  --c-surface: #2a2a2d;
+  --c-surface-hover: #343438;
+  --c-hover: rgba(255, 255, 255, 0.08);
+  --c-border: rgba(255, 255, 255, 0.12);
+  --c-text: #ececee;
+  --c-muted: #a9acb3;
+  --c-high: #62c98d;
+  --c-medium: #e3b04f;
+  --c-low: #f08a6c;
+  --c-neutral: #a9acb3;
+  --c-focus: #8ab4f8;
+  --c-shadow-pill: none;
+  --c-shadow-panel: none;
+  color-scheme: dark;
 }
 
-.calibrai-row {
+[data-tone='high'] { --tone: var(--c-high); }
+[data-tone='medium'] { --tone: var(--c-medium); }
+[data-tone='low'] { --tone: var(--c-low); }
+[data-tone='neutral'] { --tone: var(--c-neutral); }
+
+.calibrai-overlay *,
+.calibrai-overlay *::before,
+.calibrai-overlay *::after {
+  box-sizing: border-box;
+}
+
+.calibrai-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- Collapsed bar -------------------------------------------------------------------- */
+
+.calibrai-bar {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 4px;
+  min-width: 0;
 }
 
-.calibrai-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #8992a1;
+.calibrai-pill {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  height: 28px;
+  margin: 0;
+  padding: 0 12px 0 8px;
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  color: var(--c-text);
+  background: var(--c-surface);
+  box-shadow: var(--c-shadow-pill);
+  font: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  white-space: nowrap;
 }
 
-.calibrai-dot.high { background: #2f9e63; }
-.calibrai-dot.medium { background: #d98b22; }
-.calibrai-dot.low { background: #d34b4b; }
-.calibrai-dot.checking { background: #718096; animation: calibrai-pulse 1.2s ease-in-out infinite; }
+button.calibrai-pill {
+  padding-right: 4px;
+  cursor: pointer;
+}
 
-.calibrai-title { font-weight: 600; }
-.calibrai-button {
-  margin-left: auto;
-  padding: 2px 6px;
+button.calibrai-pill:hover {
+  background: var(--c-surface-hover);
+}
+
+.calibrai-icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--tone);
+}
+
+.calibrai-label {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--tone);
+  font-weight: 500;
+  text-overflow: ellipsis;
+}
+
+.calibrai-sep,
+.calibrai-reason {
+  color: var(--c-muted);
+  font-size: 12px;
+}
+
+.calibrai-sep { flex: none; }
+
+.calibrai-reason {
+  flex: 0 100 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calibrai-chevron {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  color: var(--c-muted);
+}
+
+button.calibrai-pill:hover .calibrai-chevron {
+  color: var(--c-text);
+  background: var(--c-hover);
+}
+
+.calibrai-overlay[data-expanded] .calibrai-chevron {
+  transform: rotate(180deg);
+}
+
+.calibrai-icon-button {
+  appearance: none;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
   border: 0;
-  border-radius: 4px;
-  color: inherit;
+  border-radius: 999px;
+  color: var(--c-muted);
   background: transparent;
   cursor: pointer;
-  font: inherit;
 }
-.calibrai-button:hover, .calibrai-button:focus-visible { background: #e9edf3; outline: 2px solid #5b8def; outline-offset: 1px; }
-.dark .calibrai-button:hover, .dark .calibrai-button:focus-visible { background: #3b4352; }
-.calibrai-explanation { margin: 7px 0 0; }
-.calibrai-meta { display: block; margin-top: 5px; color: #7a8494; font-size: 10px; }
+
+/*
+ * Transitions switch on only after the first theme detection, so a pill mounting on a dark
+ * page never animates from the light tokens it was first styled with.
+ */
+.calibrai-overlay[data-ready] .calibrai-pill,
+.calibrai-overlay[data-ready] .calibrai-icon-button {
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.calibrai-overlay[data-ready] .calibrai-chevron {
+  transition: transform 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.calibrai-icon-button:hover {
+  color: var(--c-text);
+  background: var(--c-hover);
+}
+
+.calibrai-pill:focus-visible,
+.calibrai-icon-button:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
+}
+
+.calibrai-pill:focus:not(:focus-visible),
+.calibrai-icon-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Checking: same 28px pill, so resolving causes no layout shift. */
+.calibrai-overlay[data-kind='checking'] .calibrai-pill {
+  background-image: linear-gradient(
+    90deg,
+    var(--c-surface) 0%,
+    var(--c-surface) 30%,
+    var(--c-surface-hover) 50%,
+    var(--c-surface) 70%,
+    var(--c-surface) 100%
+  );
+  background-size: 300% 100%;
+  animation: calibrai-shimmer 1.6s linear infinite;
+}
+
+.calibrai-overlay[data-kind='checking'] .calibrai-label {
+  font-weight: 400;
+}
+
+.calibrai-spin {
+  animation: calibrai-rotate 0.9s linear infinite;
+}
+
+/* ---- Expanded panel ------------------------------------------------------------------- */
+
+.calibrai-panel {
+  display: grid;
+  grid-template-rows: 1fr;
+  margin-top: 4px;
+  animation: calibrai-reveal 150ms ease-out;
+}
+
+.calibrai-panel-clip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.calibrai-card {
+  width: fit-content;
+  min-width: min(320px, 100%);
+  max-width: 100%;
+  padding: 12px;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  color: var(--c-text);
+  background: var(--c-surface);
+  box-shadow: var(--c-shadow-panel);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.calibrai-sentence {
+  margin: 0;
+}
+
+.calibrai-claims {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 0 0;
+  padding: 8px 0 0;
+  border-top: 1px solid var(--c-border);
+  list-style: none;
+}
+
+.calibrai-claim {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  font-size: 13px;
+}
+
+.calibrai-claim-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calibrai-claim-text.placeholder {
+  color: var(--c-muted);
+}
+
+.calibrai-marks {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.calibrai-mark { display: block; flex: none; }
+.calibrai-mark.supported { color: var(--c-high); }
+.calibrai-mark.contradicted { color: var(--c-low); }
+.calibrai-mark.not_mentioned { color: var(--c-muted); }
+
+.calibrai-tag {
+  flex: none;
+  min-width: 84px;
+  padding: 0 8px;
+  border: 1px solid color-mix(in srgb, var(--tone) 40%, transparent);
+  border-radius: 999px;
+  color: var(--tone);
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.calibrai-footer {
+  margin-top: 12px;
+  color: var(--c-muted);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.calibrai-footer p {
+  margin: 0;
+}
+
+.calibrai-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-bottom: 4px;
+}
+
+.calibrai-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.calibrai-version {
+  overflow-wrap: anywhere;
+}
+
+/* ---- Motion --------------------------------------------------------------------------- */
+
+@keyframes calibrai-reveal {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+  to {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+@keyframes calibrai-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+
+@keyframes calibrai-rotate {
+  to { transform: rotate(360deg); }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .calibrai-overlay { transition: none; }
-  .calibrai-dot.checking { animation: none; }
+  .calibrai-overlay *,
+  .calibrai-overlay *::before,
+  .calibrai-overlay *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
-@keyframes calibrai-pulse { 50% { opacity: .35; } }
