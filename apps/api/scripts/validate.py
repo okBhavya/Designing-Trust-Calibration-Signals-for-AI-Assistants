@@ -680,6 +680,11 @@ def select_study_items(
                 "score": row["score"],
                 "flagged_sentence_indices": sorted({flag["sentenceIndex"] for flag in row["sentenceFlags"]}),
                 "reason": row["explanation"],
+                # The real per-claim results and sentence flags, so the study harness can show the
+                # same overlay (pill counts, claim list, flag reasons) the extension would.
+                "sentence_flags": row["sentenceFlags"],
+                "claim_assessments": row["claimAssessments"],
+                "model_version": row["model_version"],
             },
             "difficulty": "hard" if row["source"] == "simpleqa" else "standard",
         }
