@@ -10,7 +10,59 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"Mr. Mackey first appeared in the South Park episode \"Weight…\"."
+      "reason": "All 5 attempts agreed on \"Mr. Mackey first appeared in the South Park episode \"Weight…\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_68ec951ad7a5",
+          "claim": "Mr. Mackey first appeared in the South Park episode \"Weight Gain 4000\".",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_aed578a9fdc5",
+          "claim": "\"Weight Gain 4000\" is in Season 1 of South Park.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_0eeff2be4b3a",
+          "claim": "\"Weight Gain 4000\" is Episode 2 of Season 1.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "hard"
   },
@@ -25,7 +77,69 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"How Can You Mend a Broken Heart was first recorded and…\"; 1 side detail not checked."
+      "reason": "All 5 attempts agreed on \"How Can You Mend a Broken Heart was first recorded and…\"; 1 side detail not checked.",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_a6844ac60726",
+          "claim": "How Can You Mend a Broken Heart was first recorded and released by the Bee Gees in 1971.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_a84a94f4e7af",
+          "claim": "How Can You Mend a Broken Heart was featured on the Bee Gees album Trafalgar.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_142ce01eeb2a",
+          "claim": "How Can You Mend a Broken Heart was written by Barry, Robin, and Maurice Gibb.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_f4756d391940",
+          "claim": "How Can You Mend a Broken Heart reached the top of the charts in several countries.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -40,7 +154,105 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"The phrase \"let them eat cake\" is traditionally attributed…\"."
+      "reason": "All 5 attempts agreed on \"The phrase \"let them eat cake\" is traditionally attributed…\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_5aa67f59c46c",
+          "claim": "The phrase \"let them eat cake\" is traditionally attributed to Marie Antoinette, Queen of France.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_c611364c093c",
+          "claim": "There is no solid evidence Marie Antoinette actually said the phrase.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_095616a05d2a",
+          "claim": "The line first appears in Jean-Jacques Rousseau's Confessions.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_21f27df57406",
+          "claim": "Rousseau's Confessions was written around 1765.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_5785bb215a95",
+          "claim": "In Rousseau's account, a 'great princess' was told peasants had no bread and suggested they eat brioche.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "3 of 3 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-3",
+            "sample-4"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_82f8cff91268",
+          "claim": "The phrase was only later linked to Marie Antoinette, who was still a child in France at the time Rousseau wrote.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -57,7 +269,76 @@
       "flagged_sentence_indices": [
         2
       ],
-      "reason": "1 of 5 attempts agreed on \"The End of the Road is a 1944 novel by John Barth\"; 1 side detail not checked."
+      "reason": "1 of 5 attempts agreed on \"The End of the Road is a 1944 novel by John Barth\"; 1 side detail not checked.",
+      "sentence_flags": [
+        {
+          "sentenceIndex": 2,
+          "label": "low_agreement",
+          "explanation": "4 of 5 attempts that mentioned a claim here contradicted it",
+          "claimIds": [
+            "clm_0d4a704eca8a"
+          ]
+        }
+      ],
+      "claim_assessments": [
+        {
+          "claimId": "clm_290b96692854",
+          "claim": "The End of the Road is a 1992 American film directed by Joseph Ruben.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_0d4a704eca8a",
+          "claim": "The End of the Road is a 1944 novel by John Barth.",
+          "assessment": "inconsistent",
+          "confidence": "low",
+          "evidenceStrength": "1 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.8,
+          "supportingSourceIds": [
+            "sample-2"
+          ],
+          "contradictingSourceIds": [
+            "sample-1",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ]
+        },
+        {
+          "claimId": "clm_1386bfba3b22",
+          "claim": "The End of the Road is a 1970 film directed by Aram Avakian.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "3 of 3 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-4"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_b0e6261cdb7a",
+          "claim": "The End of the Road novel by John Barth was published in a second edition in 1958.",
+          "assessment": "partially_consistent",
+          "confidence": "medium",
+          "evidenceStrength": "2 of 3 mentions supported (5 samples)",
+          "uncertainty": 0.3333,
+          "supportingSourceIds": [
+            "sample-3",
+            "sample-5"
+          ],
+          "contradictingSourceIds": [
+            "sample-2"
+          ]
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -72,7 +353,74 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"A scientist would use somatic cell nuclear transfer (SCNT)…\"."
+      "reason": "All 5 attempts agreed on \"A scientist would use somatic cell nuclear transfer (SCNT)…\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_6fab9dc0ae5e",
+          "claim": "A scientist would use somatic cell nuclear transfer (SCNT) to transplant a nucleus from one cell to another.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_cbd024ad1590",
+          "claim": "In SCNT the nucleus is extracted from a donor cell using a micropipette and injected into an enucleated recipient egg cell.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "4 of 4 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_dbbb61a7a850",
+          "claim": "SCNT is also called nuclear transplantation.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_ad2b7a71253b",
+          "claim": "The recipient cell is activated by a brief electrical pulse or chemical treatment after nuclear injection.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -87,7 +435,73 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"The lyrics of \"You Must Have Been a Beautiful Baby\" were…\"."
+      "reason": "All 5 attempts agreed on \"The lyrics of \"You Must Have Been a Beautiful Baby\" were…\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_80c9d14b7995",
+          "claim": "The lyrics of \"You Must Have Been a Beautiful Baby\" were written by Johnny Mercer.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_d743620aebad",
+          "claim": "The music of \"You Must Have Been a Beautiful Baby\" was composed by Harry Warren.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_d2c9e8e80fdb",
+          "claim": "\"You Must Have Been a Beautiful Baby\" is a 1938 song.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "4 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.2,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": [
+            "sample-2"
+          ]
+        },
+        {
+          "claimId": "clm_1e94b143a413",
+          "claim": "\"You Must Have Been a Beautiful Baby\" was written for the film Hollywood Hotel.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "2 of 2 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -102,7 +516,51 @@
       "level": "medium",
       "score": 0.6,
       "flagged_sentence_indices": [],
-      "reason": "3 of 5 attempts agreed on \"Jenesano was founded in 1557\"; 1 side detail not checked."
+      "reason": "3 of 5 attempts agreed on \"Jenesano was founded in 1557\"; 1 side detail not checked.",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_398f48d4ef62",
+          "claim": "Jenesano was founded in 1557.",
+          "assessment": "partially_consistent",
+          "confidence": "medium",
+          "evidenceStrength": "3 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.4,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-4"
+          ],
+          "contradictingSourceIds": [
+            "sample-3",
+            "sample-5"
+          ]
+        },
+        {
+          "claimId": "clm_060f44a3737b",
+          "claim": "Jenesano was founded by Spanish conquistadors.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_92162c85810b",
+          "claim": "Jenesano is a municipality in the Boyacá Department of Colombia.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "2 of 2 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-4"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "hard"
   },
@@ -117,7 +575,103 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"World War II officially began on September 1, 1939\"."
+      "reason": "All 5 attempts agreed on \"World War II officially began on September 1, 1939\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_9597eb32a8db",
+          "claim": "World War II officially began on September 1, 1939.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_1731af985df0",
+          "claim": "The war in Europe ended with Germany's unconditional surrender on May 8, 1945.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "3 of 3 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_c5c70c00f5e3",
+          "claim": "Japan's surrender was announced on August 15, 1945.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "3 of 3 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_66d695b805b0",
+          "claim": "Japan's surrender was formally signed on September 2, 1945.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_57f319584dba",
+          "claim": "World War II began when Nazi Germany invaded Poland.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_17dd868bb17b",
+          "claim": "Britain and France declared war on Germany two days after the invasion of Poland.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -132,7 +686,73 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"John Hancock is traditionally credited with signing the…\"; 3 side details not checked."
+      "reason": "All 5 attempts agreed on \"John Hancock is traditionally credited with signing the…\"; 3 side details not checked.",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_ccd98fcbc75d",
+          "claim": "John Hancock is traditionally credited with signing the Declaration of Independence in the largest handwriting.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_f9ed8bd29b6a",
+          "claim": "Historians note Hancock's signature on the Declaration is large and centered.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 1 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [
+            "sample-4"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_267da4a28745",
+          "claim": "Hancock's name became a synonym for a signature because of his large signature on the Declaration.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "3 of 3 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_9323f223897e",
+          "claim": "A popular story says Hancock wanted King George III to be able to read his signature without spectacles.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_99ff497f653e",
+          "claim": "There is no documentation that Hancock intended his large signature as a special gesture.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -147,7 +767,91 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"The human skeleton provides structural support and shape to…\"."
+      "reason": "All 5 attempts agreed on \"The human skeleton provides structural support and shape to…\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_521067977629",
+          "claim": "The human skeleton provides structural support and shape to the body.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_d94ba15a3cae",
+          "claim": "The human skeleton protects vital organs such as the brain, heart, and lungs.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_5d6b9a1ae1e0",
+          "claim": "The skeleton works with muscles to enable movement, with bones acting as levers.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_889c770219bd",
+          "claim": "Bones store minerals such as calcium and phosphorus.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_0237875ac501",
+          "claim": "Bone marrow inside many bones produces blood cells.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -162,7 +866,58 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"The line \"Love is not love which alters when it alteration…\"."
+      "reason": "All 5 attempts agreed on \"The line \"Love is not love which alters when it alteration…\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_9191174ddac5",
+          "claim": "The line \"Love is not love which alters when it alteration finds\" is from Shakespeare's Sonnet 116.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_20f076c72794",
+          "claim": "In Sonnet 116, the speaker argues that true love is constant and does not change when it encounters obstacles or shifts in the beloved.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_d81d7637247d",
+          "claim": "In the poem, love is described as an \"ever-fixed mark\" that guides lost ships and cannot be shaken by time or circumstance.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "4 of 4 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -179,7 +934,100 @@
       "flagged_sentence_indices": [
         0
       ],
-      "reason": "All 5 attempts agreed on \"The Stockton and Darlington Railway opened in 1825\"; 2 side details not checked."
+      "reason": "All 5 attempts agreed on \"The Stockton and Darlington Railway opened in 1825\"; 2 side details not checked.",
+      "sentence_flags": [
+        {
+          "sentenceIndex": 0,
+          "label": "low_agreement",
+          "explanation": "3 of 3 attempts that mentioned a claim here contradicted it",
+          "claimIds": [
+            "clm_121f897a330f"
+          ]
+        }
+      ],
+      "claim_assessments": [
+        {
+          "claimId": "clm_2e64bdd9a86a",
+          "claim": "The Liverpool and Manchester Railway opened on 15 September 1830.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_aae58be36071",
+          "claim": "The Stockton and Darlington Railway opened in 1825.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_121f897a330f",
+          "claim": "The Liverpool and Manchester Railway was the first passenger railway in England.",
+          "assessment": "inconsistent",
+          "confidence": "low",
+          "evidenceStrength": "0 of 3 mentions supported (5 samples)",
+          "uncertainty": 1.0,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-4"
+          ]
+        },
+        {
+          "claimId": "clm_b01dd55d600e",
+          "claim": "The Liverpool and Manchester Railway was the first intercity line to rely entirely on steam locomotives.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "2 of 2 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-4"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_0612200df283",
+          "claim": "The Stockton and Darlington Railway primarily carried freight.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 1 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [
+            "sample-2"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_6979463d4f28",
+          "claim": "The Stockton and Darlington Railway carried passengers using horse-drawn and steam-powered trains.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "4 of 4 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -196,7 +1044,65 @@
       "flagged_sentence_indices": [
         0
       ],
-      "reason": "1 of 5 attempts agreed on \"George Avakian began teaching in 1948 at Yale University\"; 1 side detail not checked."
+      "reason": "1 of 5 attempts agreed on \"George Avakian began teaching in 1948 at Yale University\"; 1 side detail not checked.",
+      "sentence_flags": [
+        {
+          "sentenceIndex": 0,
+          "label": "low_agreement",
+          "explanation": "4 of 5 attempts that mentioned a claim here contradicted it",
+          "claimIds": [
+            "clm_71f1c3e30c23"
+          ]
+        }
+      ],
+      "claim_assessments": [
+        {
+          "claimId": "clm_71f1c3e30c23",
+          "claim": "George Avakian began teaching in 1948 at Yale University.",
+          "assessment": "inconsistent",
+          "confidence": "low",
+          "evidenceStrength": "1 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.8,
+          "supportingSourceIds": [
+            "sample-4"
+          ],
+          "contradictingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-5"
+          ]
+        },
+        {
+          "claimId": "clm_77b6a1329f8a",
+          "claim": "George Avakian taught a course on jazz at Yale.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_b0d1cc2b6d66",
+          "claim": "George Avakian was a Columbia Records producer known for jazz recordings.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 1 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "hard"
   },
@@ -211,7 +1117,59 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"South Sudan joined the East African Community on April 15,…\"."
+      "reason": "All 5 attempts agreed on \"South Sudan joined the East African Community on April 15,…\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_8e03b05daa58",
+          "claim": "South Sudan joined the East African Community on April 15, 2016.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_a6e9be598f02",
+          "claim": "South Sudan became the sixth member state of the East African Community.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_163ba546ca6d",
+          "claim": "South Sudan gained independence from Sudan in July 2011.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -226,7 +1184,63 @@
       "level": "insufficient_evidence",
       "score": null,
       "flagged_sentence_indices": [],
-      "reason": "None of the 5 claims was mentioned by at least 2 of the 5 independent attempts, so none could be checked."
+      "reason": "None of the 5 claims was mentioned by at least 2 of the 5 independent attempts, so none could be checked.",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_cb497eeb5d68",
+          "claim": "\"I Look at the World\" is a poem by Ilse Weber.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 1 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": [
+            "sample-5"
+          ]
+        },
+        {
+          "claimId": "clm_4b71cca9d415",
+          "claim": "The poem was written during Ilse Weber's time in the Theresienstadt ghetto.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_7850d8d8093a",
+          "claim": "The poem is often dated to 1941 or 1942 in some sources.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_67c7ffd6d7ef",
+          "claim": "Ilse Weber was deported to Auschwitz in 1944.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_57cd4ad06858",
+          "claim": "Ilse Weber was a Czech-German Jewish poet.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -241,7 +1255,68 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"The first starship named Enterprise shown in Star Trek is…\"; 1 side detail not checked."
+      "reason": "All 5 attempts agreed on \"The first starship named Enterprise shown in Star Trek is…\"; 1 side detail not checked.",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_99ab1b74c0e7",
+          "claim": "The first starship named Enterprise shown in Star Trek is the USS Enterprise (NCC-1701).",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_32ee39105012",
+          "claim": "The USS Enterprise (NCC-1701) was commanded by Captain James T. Kirk in the original 1966 series.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_d0ed1a2ad214",
+          "claim": "The name Enterprise was used earlier in the fictional Star Trek timeline before this vessel appeared on screen.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "4 of 4 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_5f28d5c10f3b",
+          "claim": "The USS Enterprise NCC-1701 was introduced as the flagship of the United Federation of Planets.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -256,7 +1331,85 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"The United States generates more nuclear electricity in…\"; 1 side detail not checked."
+      "reason": "All 5 attempts agreed on \"The United States generates more nuclear electricity in…\"; 1 side detail not checked.",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_40ca007767d9",
+          "claim": "The United States has the largest number of nuclear reactors in the world.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_c3da22ee59e7",
+          "claim": "The United States generates more nuclear electricity in absolute terms than any other country.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_20620afc3c5d",
+          "claim": "France is the most nuclear-dependent major country.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_91ab9547d6b2",
+          "claim": "Nuclear power supplies roughly two-thirds or more of France's electricity.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_c38674750c8b",
+          "claim": "China, Russia, South Korea, and Japan are other major users of nuclear energy.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -271,7 +1424,69 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"The line \"Some are born great, some achieve greatness, and…\"; 1 side detail not checked."
+      "reason": "All 5 attempts agreed on \"The line \"Some are born great, some achieve greatness, and…\"; 1 side detail not checked.",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_fa41d191b7b6",
+          "claim": "The line \"Some are born great, some achieve greatness, and some have greatness thrust upon 'em\" is spoken by Malvolio in Twelfth Night.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_6cbcc45d3960",
+          "claim": "The line appears in Act 2, Scene 5 of Twelfth Night.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_1ad175188609",
+          "claim": "The line is spoken in the letter scene where Malvolio reads a forged letter he believes is from Olivia.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_397046beff69",
+          "claim": "The line expresses Malvolio's self-aggrandizing fantasies about rising in social rank.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -286,7 +1501,72 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"In baseball statistics, G stands for Games\"."
+      "reason": "All 5 attempts agreed on \"In baseball statistics, G stands for Games\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_286dfc5bc2a9",
+          "claim": "In baseball statistics, G stands for Games.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_39d59d4f6c5a",
+          "claim": "G counts the number of games a player or team has appeared in.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_cd89c50203fc",
+          "claim": "For pitchers, G refers to games pitched.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_75fa9db49086",
+          "claim": "For hitters, G refers to games played in the field or as a batter.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "2 of 2 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -301,7 +1581,40 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"In The Vampire Diaries, the tomb vampires are kept in an…\"."
+      "reason": "All 5 attempts agreed on \"In The Vampire Diaries, the tomb vampires are kept in an…\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_e3909fdbce3c",
+          "claim": "In The Vampire Diaries, the tomb vampires are kept in an underground vault or cellar beneath Mystic Falls.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_374925af9a87",
+          "claim": "The Founders' Council holds the tomb vampires until the annual Founders' Day ceremony.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "2 of 2 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-2",
+            "sample-3"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -316,7 +1629,75 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"Seiko is generally credited with making the first…\"; 3 side details not checked."
+      "reason": "All 5 attempts agreed on \"Seiko is generally credited with making the first…\"; 3 side details not checked.",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_9c178c3ada60",
+          "claim": "Seiko is generally credited with making the first computerized diver's watch.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_d06df55bbd2f",
+          "claim": "Seiko released the Seiko Divers 150M \"Computer Diver\" in 1981.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_61348e6a3a3d",
+          "claim": "Seiko's innovation combined diver's timing functions with a digital computer.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 1 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [
+            "sample-2"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_b9676097aeff",
+          "claim": "The Seiko innovation was one of the earliest electronic dive computers in wristwatch form.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_45c8b70db284",
+          "claim": "The Seiko Computer Diver's watch has model number 0633-5009.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "hard"
   },
@@ -331,7 +1712,86 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"Fungi are primarily decomposers in a food web\"."
+      "reason": "All 5 attempts agreed on \"Fungi are primarily decomposers in a food web\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_30698c34270b",
+          "claim": "Fungi are primarily decomposers in a food web.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_61d95797032e",
+          "claim": "Fungi break down dead organic matter and recycle nutrients back into the soil.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_4ed9456a87da",
+          "claim": "Fungi are eaten by some animals.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "3 of 3 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-2",
+            "sample-3",
+            "sample-4"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_f145596a3666",
+          "claim": "Some fungi form mutualistic relationships with plant roots called mycorrhizae.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "2 of 2 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-4"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_ea685d1f07d0",
+          "claim": "Some fungi act as parasites.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -348,7 +1808,97 @@
       "flagged_sentence_indices": [
         0
       ],
-      "reason": "1 of 5 attempts agreed on \"The first Yeezy shoe, the Adidas Yeezy Boost 750 \"Light…\"."
+      "reason": "1 of 5 attempts agreed on \"The first Yeezy shoe, the Adidas Yeezy Boost 750 \"Light…\".",
+      "sentence_flags": [
+        {
+          "sentenceIndex": 0,
+          "label": "low_agreement",
+          "explanation": "4 of 5 attempts that mentioned a claim here contradicted it",
+          "claimIds": [
+            "clm_148dc2144d85"
+          ]
+        }
+      ],
+      "claim_assessments": [
+        {
+          "claimId": "clm_148dc2144d85",
+          "claim": "The first Yeezy shoe, the Adidas Yeezy Boost 750 \"Light Brown\", was released on November 2, 2015.",
+          "assessment": "inconsistent",
+          "confidence": "low",
+          "evidenceStrength": "1 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.8,
+          "supportingSourceIds": [
+            "sample-5"
+          ],
+          "contradictingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4"
+          ]
+        },
+        {
+          "claimId": "clm_75eed0ac3cb2",
+          "claim": "Note that the first Yeezy sneaker was actually the Yeezy 750 Boost, which debuted in a limited release that year, following Kanye West's collaboration with Adidas.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_f3018921ad82",
+          "claim": "The Yeezy line was a collaboration between Kanye West and Adidas.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "4 of 4 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_bef5f54dddd9",
+          "claim": "Its original Yeezy colorway had been previewed earlier, and it became a major hit that kicked off the Yeezy line.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_6fc4288c149a",
+          "claim": "The Yeezy Boost 750 \"Light Brown\" is often called the \"Chocolate\".",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "2 of 2 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -363,7 +1913,53 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"Eremiaphila arabica was described by Henri de Saussure\"; 1 side detail not checked."
+      "reason": "All 5 attempts agreed on \"Eremiaphila arabica was described by Henri de Saussure\"; 1 side detail not checked.",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_58e6064e6348",
+          "claim": "Eremiaphila arabica was described by Henri de Saussure.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_23abe62e60e1",
+          "claim": "Eremiaphila arabica was described in 1872.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_db10f177b9ce",
+          "claim": "Eremiaphila arabica is a praying mantis in the family Eremiaphilidae.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "hard"
   },
@@ -378,7 +1974,70 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"Humans belong to the domain Eukarya\"."
+      "reason": "All 5 attempts agreed on \"Humans belong to the domain Eukarya\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_75275b507e6f",
+          "claim": "Humans belong to the domain Eukarya.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_666a9d57e1b2",
+          "claim": "Eukarya is the domain of life whose cells contain a nucleus and other membrane-bound organelles.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_7d6858d990d6",
+          "claim": "The three-domain system includes Bacteria, Archaea, and Eukarya.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "3 of 3 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_9291e22f1701",
+          "claim": "Animals, plants, fungi, and protists are also in the domain Eukarya.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "2 of 2 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-3",
+            "sample-4"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -393,7 +2052,90 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"The opera Tosca is by Giacomo Puccini\"."
+      "reason": "All 5 attempts agreed on \"The opera Tosca is by Giacomo Puccini\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_411703987954",
+          "claim": "The opera Tosca is by Giacomo Puccini.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_f28365b34b77",
+          "claim": "Tosca premiered at the Teatro Costanzi in Rome.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "4 of 4 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_bf84bd798ff6",
+          "claim": "Tosca premiered on January 14, 1900.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_04b42d4f35b1",
+          "claim": "Tosca is set in Rome in June 1800.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_b6d5eff3cc24",
+          "claim": "The main characters of Tosca include Floria Tosca, Mario Cavaradossi, and the police chief Scarpia.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -408,7 +2150,31 @@
       "level": "insufficient_evidence",
       "score": null,
       "flagged_sentence_indices": [],
-      "reason": "None of the 2 claims was mentioned by at least 2 of the 5 independent attempts, so none could be checked."
+      "reason": "None of the 2 claims was mentioned by at least 2 of the 5 independent attempts, so none could be checked.",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_333cdebe30ca",
+          "claim": "In November 2008, Andrew Tate was ranked the seventh-best light heavyweight kickboxer in the United Kingdom.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_21acda3a69dc",
+          "claim": "The ranking organization was the Beckett ranking system, a kickboxing rankings list.",
+          "assessment": "not_addressed",
+          "confidence": "low",
+          "evidenceStrength": "mentioned by 0 of 5 samples",
+          "uncertainty": null,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "hard"
   },
@@ -423,7 +2189,75 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"The suffix used for enzyme names is \"-ase\"\"."
+      "reason": "All 5 attempts agreed on \"The suffix used for enzyme names is \"-ase\"\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_1ed94644385f",
+          "claim": "The suffix used for enzyme names is \"-ase\".",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_7a20918a44fb",
+          "claim": "The \"-ase\" suffix is added to the name of a substrate or a description of the enzyme's action to form an enzyme name.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_dc197b78791c",
+          "claim": "The enzyme lactase is named after its substrate lactose.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_674b41d0e412",
+          "claim": "The enzyme protease is named after its substrate protein.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -440,7 +2274,81 @@
       "flagged_sentence_indices": [
         0
       ],
-      "reason": "0 of 5 attempts agreed on \"The last player drafted directly out of high school was…\"."
+      "reason": "0 of 5 attempts agreed on \"The last player drafted directly out of high school was…\".",
+      "sentence_flags": [
+        {
+          "sentenceIndex": 0,
+          "label": "low_agreement",
+          "explanation": "5 of 5 attempts that mentioned a claim here contradicted it; 2 of 2 attempts that mentioned a claim here contradicted it",
+          "claimIds": [
+            "clm_c244c8c9d320",
+            "clm_f2005fd3a3fa"
+          ]
+        }
+      ],
+      "claim_assessments": [
+        {
+          "claimId": "clm_c244c8c9d320",
+          "claim": "The last player drafted directly out of high school was Korleone Young.",
+          "assessment": "inconsistent",
+          "confidence": "low",
+          "evidenceStrength": "0 of 5 mentions supported (5 samples)",
+          "uncertainty": 1.0,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ]
+        },
+        {
+          "claimId": "clm_f2005fd3a3fa",
+          "claim": "Korleone Young was selected by the Dallas Mavericks in the 2005 NBA Draft.",
+          "assessment": "inconsistent",
+          "confidence": "low",
+          "evidenceStrength": "0 of 2 mentions supported (5 samples)",
+          "uncertainty": 1.0,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": [
+            "sample-1",
+            "sample-5"
+          ]
+        },
+        {
+          "claimId": "clm_e0485bdfa611",
+          "claim": "The NBA requires players to be at least one year removed from high school.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "4 of 4 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_ba346b4a7cb5",
+          "claim": "No player has been drafted straight out of high school since Korleone Young.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   },
@@ -455,7 +2363,75 @@
       "level": "high",
       "score": 1.0,
       "flagged_sentence_indices": [],
-      "reason": "All 5 attempts agreed on \"A subcutaneous injection is given into the fatty layer just…\"."
+      "reason": "All 5 attempts agreed on \"A subcutaneous injection is given into the fatty layer just…\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_ed89e4fce857",
+          "claim": "A subcutaneous injection is given into the fatty layer just beneath the skin.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_70f8c2d0ab35",
+          "claim": "A subcutaneous injection is typically given into the fatty layer just beneath the skin, most commonly in the abdomen (at least two inches away from the navel), the outer thighs, the back of the upper arms, or the upper outer buttocks.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_7aee2a792ac5",
+          "claim": "Subcutaneous needles are usually inserted at a 45 to 90 degree angle, depending on body size and needle length.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_945069df4932",
+          "claim": "The injection site should be rotated within the same area to prevent tissue damage and lipodystrophy.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
     },
     "difficulty": "standard"
   }
