@@ -8,6 +8,7 @@ import { mountOverlay } from '../src/overlay/mountOverlay';
 import { diagnostic } from '../src/core/diagnostics';
 import { modeModelVersion, type RuntimeMode } from '../src/core/runtimeConfig';
 import { sendOverlayEvent } from '../src/core/events';
+import { createScanScheduler } from '../src/core/scanScheduler';
 
 export default defineContentScript({
   matches: ['https://chatgpt.com/*', 'https://claude.ai/*', 'https://gemini.google.com/*'],
@@ -15,20 +16,23 @@ export default defineContentScript({
   main() {
     const completion = new CompletionTracker();
     const duplicates = new DuplicateGuard();
-    let scheduled = false;
 
     const adapter = getAdapterForPage(new URL(location.href));
     if (!adapter) return;
     diagnostic('adapter-selected', { platform: adapter.platform });
 
-    const scan = async () => {
-      scheduled = false;
+    /** Resolves to true when an answer is still streaming or settling and needs another scan. */
+    const scan = async (): Promise<boolean> => {
+      let settling = false;
       const detectedAnswers = adapter.findAnswers(document);
       diagnostic('assistant-scan', { platform: adapter.platform, count: detectedAnswers.length });
       for (const detected of detectedAnswers) {
         const sample = { text: detected.answer, streaming: detected.isStreaming };
         diagnostic('answer-state', { platform: detected.platform, streaming: detected.isStreaming });
-        if (detected.isStreaming || !completion.isStable(detected.container, sample)) continue;
+        if (detected.isStreaming || !completion.isStable(detected.container, sample)) {
+          settling = true;
+          continue;
+        }
         const answerHash = await hashAnswer(detected.answer);
         if (!duplicates.hasChanged(detected.container, answerHash)) {
           diagnostic('duplicate-capture-prevented', { platform: detected.platform });
@@ -78,14 +82,12 @@ export default defineContentScript({
         }
         host.dataset.answerHash = answerHash;
       }
+      return settling;
     };
-    const observer = new MutationObserver(() => {
-      if (scheduled) return;
-      scheduled = true;
-      window.setTimeout(() => void scan(), 250);
-    });
+    const scheduler = createScanScheduler(scan);
+    const observer = new MutationObserver(() => scheduler.onMutation());
     observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-    void scan();
+    scheduler.scanNow();
   },
 });
 
