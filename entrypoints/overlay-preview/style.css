@@ -1,0 +1,29 @@
+/* Dev-only page: every overlay state x light/dark. Excluded from production builds. */
+body {
+  margin: 0;
+  padding: 24px;
+  color: #1f2328;
+  background: #eceef1;
+  font: 14px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 20px; }
+h1 { margin: 0; font-size: 18px; }
+header label { display: inline-flex; align-items: center; gap: 6px; }
+.hint { flex-basis: 100%; margin: 0; color: #5b616b; font-size: 12px; }
+.grid { display: grid; grid-template-columns: 160px repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.col-head { font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5b616b; }
+.state { padding-top: 16px; font-weight: 600; }
+.state small { display: block; font-weight: 400; color: #5b616b; }
+.cell { padding: 8px 20px 4px; border-radius: 12px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08); }
+.answer { margin: 0; }
+.variant { margin-top: 8px; }
+.variant-label { font-size: 11px; opacity: 0.65; }
+.log {
+  margin-top: 24px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff;
+  font: 12px/1.6 ui-monospace, monospace;
+  max-height: 160px;
+  overflow: auto;
+}
