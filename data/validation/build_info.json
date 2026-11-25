@@ -1,0 +1,22 @@
+{
+  "seed": 20261125,
+  "retrieved_at": "2026-11-24T20:54:11+00:00",
+  "nq_open": {
+    "url": "https://datasets-server.huggingface.co/rows?dataset=google-research-datasets%2Fnq_open&config=nq_open&split=validation",
+    "split": "validation",
+    "hf_revision": "5dd9790a83002ad084ddeb7c420dc716852c6f28",
+    "rows": 3610,
+    "after_time_sensitive_filter": 3561,
+    "sampled": 60,
+    "license": "CC BY-SA 3.0"
+  },
+  "simpleqa": {
+    "url": "https://openaipublic.blob.core.windows.net/simple-evals/simple_qa_test_set.csv",
+    "sha256": "feee3f7e7db3617e94e8fcf1977b756ec420ef8568f4e0fcbbe0e92e9d5fc032",
+    "rows": 4326,
+    "sampled": 40,
+    "license": "MIT"
+  },
+  "time_sensitive_filter": "\\b(current|currently|latest|now|this year|recent|recently|today|newest|as of|so far)\\b",
+  "questions_sha256": "98ff005a8d2308b28f752448403c25b5e94d079d90ee6c183c17cc0eb4aab2ef"
+}

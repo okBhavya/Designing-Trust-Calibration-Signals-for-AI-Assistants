@@ -25,9 +25,11 @@ export type PlatformId = 'chatgpt' | 'claude' | 'gemini';
 
 export interface SignalResponse {
   status: SignalStatus;
-  confidence?: ConfidenceLevel;
+  /** null when the backend gives no confidence (insufficient evidence, unavailable, abstained). */
+  confidence?: ConfidenceLevel | null;
   assessmentState?: AssessmentState;
-  score?: number;
+  /** null when no score is meaningful (insufficient evidence, unavailable). */
+  score?: number | null;
   sentenceFlags?: Array<{
     sentenceIndex: number;
     label: string;
@@ -36,7 +38,8 @@ export interface SignalResponse {
   }>;
   claimAssessments?: Array<{
     claimId?: string;
-    claim: string;
+    /** Omitted when the backend replays a stored response. */
+    claim?: string;
     assessment: string;
     confidence: ConfidenceLevel;
     evidenceStrength?: string;

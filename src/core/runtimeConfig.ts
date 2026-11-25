@@ -13,3 +13,8 @@ export const defaultRuntimeConfig: ExtensionRuntimeConfig = {
   participantId: '',
   sessionToken: '',
 };
+
+/** Version label for overlays shown before (or instead of) a provider response. */
+export function modeModelVersion(mode: RuntimeMode): string {
+  return mode === 'api' ? 'api' : 'mock-v1';
+}

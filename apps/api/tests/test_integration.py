@@ -38,7 +38,9 @@ def test_authenticated_capture_lifecycle_uses_mock_provider_and_deletes_data(
     assert "Explain calibration." not in caplog.text
     assert "Calibration compares confidence with accuracy." not in caplog.text
 
-    assert client.post("/v1/signal", json=payload, headers=headers).status_code == 409
+    revisit = client.post("/v1/signal", json=payload, headers=headers)
+    assert revisit.status_code == 200
+    assert revisit.json() == result
     assert client.post(
         "/v1/consent",
         json={
@@ -105,6 +107,12 @@ def test_reliability_fixture_provider_is_feature_flagged_and_does_not_store_raw_
     assert response.status_code == 200
     assert response.json()["assessmentState"] == "insufficient_evidence"
     assert response.json()["claimAssessments"][0]["assessment"] == "insufficient_evidence"
+    assert response.json()["score"] is None
+
+    revisit = client.post("/v1/signal", json=payload, headers=headers)
+    assert revisit.status_code == 200
+    assert revisit.json()["assessmentState"] == "insufficient_evidence"
+    assert all("claim" not in assessment for assessment in revisit.json()["claimAssessments"])
 
     db = next(client.app.dependency_overrides[get_db]())
     try:

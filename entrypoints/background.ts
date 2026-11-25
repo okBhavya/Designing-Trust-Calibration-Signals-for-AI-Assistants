@@ -2,17 +2,22 @@ import type { CaptureRequest, CaptureResponse } from '../src/core/contracts';
 import { defaultRuntimeConfig, type ExtensionRuntimeConfig } from '../src/core/runtimeConfig';
 import { getMockSignal } from '../src/signals/mockProvider';
 import { diagnostic } from '../src/core/diagnostics';
-import { requestBackendSignal as requestConfiguredBackendSignal } from '../src/core/backendSignal';
+import { requestCachedBackendSignal } from '../src/core/backendSignal';
+import { isOverlayEventMessage, postBackendEvent, type OverlayEventMessage } from '../src/core/events';
 
 export default defineBackground(() => {
   browser.runtime.onMessage.addListener(async (message: unknown): Promise<CaptureResponse | undefined> => {
+    if (isOverlayEventMessage(message)) {
+      void forwardOverlayEvent(message);
+      return undefined;
+    }
     if (!isCaptureRequest(message)) return undefined;
     diagnostic('capture-received', { platform: message.platform });
     try {
       const config = await getRuntimeConfig();
       const signal = config.mode === 'mock'
         ? await getMockSignal(message.answer, message.platform)
-        : await requestConfiguredBackendSignal(message, config);
+        : await requestCachedBackendSignal(message, config, browser.storage.session);
       diagnostic('signal-request-succeeded', { platform: message.platform, status: signal.status });
       return { type: 'capture-result', signal };
     } catch (error) {
@@ -25,6 +30,15 @@ export default defineBackground(() => {
     }
   });
 });
+
+/** Events are sent in API mode only and never affect the overlay. */
+async function forwardOverlayEvent(event: OverlayEventMessage): Promise<void> {
+  try {
+    await postBackendEvent(event, await getRuntimeConfig());
+  } catch {
+    diagnostic('event-send-failed', { platform: event.platform });
+  }
+}
 
 async function getRuntimeConfig(): Promise<ExtensionRuntimeConfig> {
   const stored = await browser.storage.local.get(Object.keys(defaultRuntimeConfig));

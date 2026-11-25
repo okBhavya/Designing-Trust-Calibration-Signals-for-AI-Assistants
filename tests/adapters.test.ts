@@ -18,7 +18,7 @@ describe.each([
     adapter: geminiAdapter,
     html: `
       <div class="user-query">Explain calibration.</div>
-      <div class="model-response"><div class="model-response-text">Calibration measures whether confidence matches accuracy.</div></div>
+      <div class="model-response"><message-content class="model-response-text">Calibration measures whether confidence matches accuracy.</message-content></div>
     `,
     url: 'https://gemini.google.com/app',
   },

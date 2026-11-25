@@ -119,12 +119,57 @@ def test_events_validate_and_delete_cascades(client, auth_headers):
     assert client.get(f"/v1/config?participant_id={participant_id}", headers=headers).status_code == 401
 
 
-def test_duplicate_signal_is_rejected(client, auth_headers):
+def test_duplicate_signal_returns_stored_response(client, auth_headers, monkeypatch):
+    from app.api.routes import signal as signal_route
+
     participant_id = uuid4()
     headers = auth_headers(participant_id)
     consent(client, participant_id, headers)
-    assert client.post("/v1/signal", json=signal_payload(participant_id), headers=headers).status_code == 200
-    assert client.post("/v1/signal", json=signal_payload(participant_id), headers=headers).status_code == 409
+    first = client.post("/v1/signal", json=signal_payload(participant_id), headers=headers)
+    assert first.status_code == 200
+
+    def provider_must_not_run():
+        raise AssertionError("a revisited answer must not be re-evaluated")
+
+    monkeypatch.setattr(signal_route, "get_provider", provider_must_not_run)
+    revisit = client.post("/v1/signal", json=signal_payload(participant_id), headers=headers)
+    assert revisit.status_code == 200
+    assert revisit.json() == first.json()
+
+
+def test_events_are_rejected_without_current_consent(client, auth_headers):
+    participant_id = uuid4()
+    headers = auth_headers(participant_id)
+    event = {"participant_id": str(participant_id), "event_type": "signal_shown", "platform": "claude"}
+    assert client.post("/v1/events", json=event, headers=headers).status_code == 403
+    assert consent(client, participant_id, headers).status_code == 200
+    assert client.post("/v1/events", json=event, headers=headers).status_code == 200
+    assert consent(client, participant_id, headers, status="withdrawn").status_code == 200
+    assert client.post("/v1/events", json=event, headers=headers).status_code == 403
+
+
+def test_provider_outage_has_no_score(client, auth_headers, monkeypatch):
+    from app.api.routes import signal as signal_route
+    from app.services.reliability_service import ProviderUnavailableError
+
+    participant_id = uuid4()
+    headers = auth_headers(participant_id)
+    consent(client, participant_id, headers)
+
+    def unavailable():
+        raise ProviderUnavailableError("down")
+
+    monkeypatch.setattr(signal_route, "get_provider", unavailable)
+    response = client.post("/v1/signal", json=signal_payload(participant_id), headers=headers)
+    assert response.status_code == 200
+    assert response.json()["assessmentState"] == "unavailable"
+    assert response.json()["score"] is None
+
+
+def test_pilot_session_lifetime_is_one_day():
+    from app.config import Settings
+
+    assert Settings().session_ttl_seconds == 86_400
 
 
 def test_rate_limit(client, auth_headers, monkeypatch):
@@ -158,5 +203,8 @@ def test_expired_session_is_rejected(client, auth_headers, monkeypatch):
     participant_id = uuid4()
     headers = auth_headers(participant_id)
     original_time = auth.time.time()
-    monkeypatch.setattr(auth.time, "time", lambda: original_time + 901)
+    from app.config import get_settings
+
+    expired_at = original_time + get_settings().session_ttl_seconds + 1
+    monkeypatch.setattr(auth.time, "time", lambda: expired_at)
     assert client.get(f"/v1/config?participant_id={participant_id}", headers=headers).status_code == 401

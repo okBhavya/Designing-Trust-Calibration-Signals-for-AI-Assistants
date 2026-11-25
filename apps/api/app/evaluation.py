@@ -232,9 +232,17 @@ def bootstrap_interval(
     return BootstrapInterval(estimate, lower, upper, resamples)
 
 
-def proportion_confidence_interval(successes: int, total: int) -> tuple[float, float]:
+def proportion_confidence_interval(successes: int, total: int, z: float = 1.96) -> tuple[float, float]:
+    """Wilson score interval (95% by default).
+
+    Unlike the Wald interval it stays inside [0, 1] and does not collapse to zero width at
+    0/n or n/n, which matters for the small per-level counts in a validation table.
+    """
     if total < 1 or successes < 0 or successes > total:
         raise ValueError("successes and total must define a valid proportion")
     proportion = successes / total
-    margin = 1.96 * sqrt(proportion * (1 - proportion) / total)
-    return max(0.0, proportion - margin), min(1.0, proportion + margin)
+    z2 = z * z
+    denominator = 1 + z2 / total
+    center = (proportion + z2 / (2 * total)) / denominator
+    margin = z * sqrt(proportion * (1 - proportion) / total + z2 / (4 * total * total)) / denominator
+    return max(0.0, center - margin), min(1.0, center + margin)

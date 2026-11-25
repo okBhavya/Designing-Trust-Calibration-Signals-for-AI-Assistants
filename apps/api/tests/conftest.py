@@ -10,7 +10,12 @@ from sqlalchemy.orm import sessionmaker
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
-from app.config import get_settings
+from app.config import Settings, get_settings
+
+# Tests must not depend on a developer's local apps/api/.env (secrets, provider, TTL).
+# This runs before app.main creates the cached settings.
+Settings.model_config["env_file"] = None
+
 from app.database.connection import Base, get_db
 from app.main import app
 from app.core.rate_limit import limiter
