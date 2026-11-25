@@ -2,6 +2,15 @@ import { defineConfig } from 'wxt';
 
 export default defineConfig({
   modules: ['@wxt-dev/module-react'],
+  hooks: {
+    // The overlay preview page is a dev tool: built by `wxt` and `wxt build --mode development`,
+    // never shipped in a production build.
+    'entrypoints:found': (wxt, infos) => {
+      if (wxt.config.mode !== 'production') return;
+      const index = infos.findIndex((info) => info.name === 'overlay-preview');
+      if (index >= 0) infos.splice(index, 1);
+    },
+  },
   manifest: {
     name: 'CalibrAI',
     description: 'Trust calibration signals for AI assistant answers.',
