@@ -67,7 +67,8 @@ contains untracked Phase 2 implementation, test, and documentation files;
 untracked files are not included in that Git statistic. No commit or push was
 created.
 
-Earlier Phase 2 files remain uncommitted in the worktree and were preserved.
+The Phase 2 work is now committed on `main` (`2e3eefb` … `c38cad4`); see the
+update at the end of this report for what followed.
 
 ## Verification
 
@@ -217,3 +218,44 @@ environment and governance prerequisites.
 - Migration consistency is not complete because the existing local database is
   uninitialized and the disposable upgraded schema exposes six nullability
   differences requiring a reviewed follow-up migration.
+
+## Update 2026-11-26
+
+The Phase 2 work above is committed on `main` (`2e3eefb` … `c38cad4`). Branch
+`audit-fixes-and-selfconsistency` then added the following. The audit's
+"Resolved on this branch" list (`docs/audit/REPO_AUDIT_2026-11-25.md`) maps each
+audit finding to its commit.
+
+- **Audit fixes:** stored signals returned for revisited answers, Gemini
+  answers detected once, interaction events sent and gated on current consent,
+  a nullable score, a 24-hour pilot session, overlay labels by mode, the popup's
+  active site, the options reset, Wilson intervals, and a scan scheduler so
+  answers are captured on pages that go quiet once streaming ends.
+- **Self-consistency provider:** the first real reliability engine (claim
+  extraction grounded in the answer, 5 samples, one judge matrix, the weakest
+  addressed claim decides the level, refusals abstain), with a
+  backend/extension response contract. Default model `claude-haiku-5-5`.
+- **Validation:** `apps/api/scripts/validate.py` ran 100 NQ-open and SimpleQA
+  questions; results, report and reliability diagram are in `data/validation/`,
+  with 4 labels flagged for human review. The sources are still NOT APPROVED
+  (`data/validation/SOURCE.md`), so this is engineering validation only.
+- **Overlay redesign:** a collapsed pill with an expandable claim list,
+  light and dark tokens, and a development preview page.
+- **Migration `0002`:** study trial columns, and the six timestamp
+  nullability differences fixed; `compare_metadata` now reports no differences
+  (tested on SQLite).
+- **Study backend:** `/v1/study/enroll` (balanced condition assignment),
+  `/v1/study/trials`, `/v1/study/questionnaire`, feature flags from settings,
+  and `apps/api/scripts/export_study.py`.
+- **Study harness:** `apps/study`, consent through debrief, conditions
+  baseline / A / C, 30 trials built from real answers and signals.
+- **Deployment:** a Render blueprint and Procfile (migrate before serving), a
+  Vercel config for the harness, host permissions from `WXT_API_ORIGIN`
+  (documented in `docs/DEPLOY.md`), and a smoke-test checklist
+  (`docs/SMOKE_TEST.md`).
+
+Still open: PostgreSQL verification and the row-level-security policies,
+onboarding and consent inside the extension, sentence underlines in the live
+extension, a retrieval and NLI provider, a Firefox build, rate limiting across
+workers, human review of the flagged labels, source approval and ethics
+approval.

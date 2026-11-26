@@ -40,6 +40,37 @@ importers:
         specifier: ^0.20.6
         version: 0.20.27(@types/node@26.6.6)(jiti@2.7.0)(rolldown@1.2.16)(rollup@4.67.5)
 
+  apps/study:
+    dependencies:
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.12
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ^18.3.1
+        version: 18.3.7(@types/react@18.3.31)
+      '@vitejs/plugin-react':
+        specifier: ^6.2.1
+        version: 6.2.1(vite@8.3.5(@types/node@26.6.6)(esbuild@0.27.7)(jiti@2.7.0))
+      jsdom:
+        specifier: ^25.0.1
+        version: 25.0.1
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vite:
+        specifier: ^8.3.5
+        version: 8.3.5(@types/node@26.6.6)(esbuild@0.27.7)(jiti@2.7.0)
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@26.6.6)(jsdom@25.0.1)(lightningcss@1.33.0)
+
 packages:
 
   '@1natsu/wait-element@4.2.0':

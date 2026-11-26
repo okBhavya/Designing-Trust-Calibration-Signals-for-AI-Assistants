@@ -1,0 +1,189 @@
+[
+  {
+    "id": "practice-nq-153",
+    "domain": "general knowledge",
+    "prompt": "what was tom hanks character name in castaway",
+    "ai_answer": "In the 2000 film *Castaway*, Tom Hanks played Chuck Noland, a FedEx systems engineer who becomes stranded on a remote island after his plane crashes. His only companion for much of the story is a volleyball he names \"Wilson.\"",
+    "ground_truth": "Chuck Noland",
+    "ai_is_correct": true,
+    "signal": {
+      "level": "high",
+      "score": 1.0,
+      "flagged_sentence_indices": [],
+      "reason": "All 5 attempts agreed on \"Tom Hanks played Chuck Noland in Castaway\".",
+      "sentence_flags": [],
+      "claim_assessments": [
+        {
+          "claimId": "clm_8dc4f7c35ba9",
+          "claim": "Tom Hanks played Chuck Noland in Castaway.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_001a6e479223",
+          "claim": "Castaway is a 2000 film.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_9095c06eca34",
+          "claim": "Chuck Noland is a FedEx systems engineer.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_9384bbd35f22",
+          "claim": "Chuck Noland is stranded on a remote island after his plane crashes.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "5 of 5 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_f9855f884224",
+          "claim": "Noland's companion on the island is a volleyball named Wilson.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "2 of 2 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-3",
+            "sample-4"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "practice-nq-1232",
+    "domain": "general knowledge",
+    "prompt": "where was the remake of dirty dancing filmed",
+    "ai_answer": "The 2017 television remake of *Dirty Dancing* was filmed primarily in South Africa, with production taking place in Cape Town and the surrounding Western Cape region. The filming location was chosen to stand in for the Catskills setting of the original 1987 film, which was shot largely in Virginia and North Carolina.",
+    "ground_truth": "High Hampton Inn in Cashiers",
+    "ai_is_correct": false,
+    "signal": {
+      "level": "low",
+      "score": 0.0,
+      "flagged_sentence_indices": [
+        0
+      ],
+      "reason": "0 of 5 attempts agreed on \"The 2017 television remake of Dirty Dancing was filmed…\".",
+      "sentence_flags": [
+        {
+          "sentenceIndex": 0,
+          "label": "low_agreement",
+          "explanation": "5 of 5 attempts that mentioned a claim here contradicted it; 5 of 5 attempts that mentioned a claim here contradicted it",
+          "claimIds": [
+            "clm_975be52320d0",
+            "clm_1a283fc0bcd3"
+          ]
+        }
+      ],
+      "claim_assessments": [
+        {
+          "claimId": "clm_975be52320d0",
+          "claim": "The 2017 television remake of Dirty Dancing was filmed primarily in South Africa.",
+          "assessment": "inconsistent",
+          "confidence": "low",
+          "evidenceStrength": "0 of 5 mentions supported (5 samples)",
+          "uncertainty": 1.0,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ]
+        },
+        {
+          "claimId": "clm_1a283fc0bcd3",
+          "claim": "The 2017 Dirty Dancing remake had production in Cape Town and the Western Cape region.",
+          "assessment": "inconsistent",
+          "confidence": "low",
+          "evidenceStrength": "0 of 5 mentions supported (5 samples)",
+          "uncertainty": 1.0,
+          "supportingSourceIds": [],
+          "contradictingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-4",
+            "sample-5"
+          ]
+        },
+        {
+          "claimId": "clm_36be920e2f65",
+          "claim": "The original 1987 Dirty Dancing film was shot largely in Virginia and North Carolina.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "2 of 2 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-4",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        },
+        {
+          "claimId": "clm_7e99ace45833",
+          "claim": "The filming location of the remake was chosen to stand in for the Catskills setting of the original film.",
+          "assessment": "consistent",
+          "confidence": "high",
+          "evidenceStrength": "4 of 4 mentions supported (5 samples)",
+          "uncertainty": 0.0,
+          "supportingSourceIds": [
+            "sample-1",
+            "sample-2",
+            "sample-3",
+            "sample-5"
+          ],
+          "contradictingSourceIds": []
+        }
+      ],
+      "model_version": "selfconsistency-v2:claude-haiku-5-5"
+    },
+    "difficulty": "standard"
+  }
+]

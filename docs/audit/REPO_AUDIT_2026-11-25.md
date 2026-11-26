@@ -295,3 +295,36 @@ Treat it as a draft, not as a source of truth:
    explains the signal.
 7. **Docs:** update the README and the master report's commit status, and replace
    the earlier `docs/audit/` draft with this file.
+
+---
+
+## Resolved on this branch
+
+Branch `audit-fixes-and-selfconsistency`, as of 2026-11-26. The branch history was rewritten
+after this audit was written, so these hashes are the current ones (from `git log main..HEAD`).
+
+| Finding | Resolution | Commit |
+|---|---|---|
+| Bug 1: revisited answers show errors | The backend returns the stored response for a known `(participant, answer hash)`, also on a race; the extension caches signals per session | `169d25f` |
+| Bug 2: Gemini detects each answer twice | Every match resolves to the outermost `.model-response`; the test uses a real `<message-content>` element | `8a02385` |
+| Bug 3: no interaction events | The overlay sends `signal_shown`, `explanation_opened` and `signal_dismissed` through the background worker | `7efe340` |
+| Bug 5: events accepted without consent | `/v1/events` requires current consent | `e9841d3` |
+| Bug 6: can't reach a deployed backend | `host_permissions` come from `WXT_API_ORIGIN` (https, validated); local ports only in development builds; the placeholder domain is gone; `docs/DEPLOY.md` explains adding `chrome-extension://<id>` to `CALIBRAI_API_ORIGINS` | `732655f` |
+| Bug 7: `score = 0.0` means several things | `score` is null when no score is meaningful (insufficient evidence, unavailable, abstained) | `4305a7d` |
+| Minor: `mock-v1` on API overlays, hardcoded popup site, options reset | Overlays are labelled by mode; the popup shows the active site; reset clears the form | `342f3e8` |
+| Minor: Wald interval | Wilson score interval | `2017d08` |
+| Minor: no fallback timer for capture | A scan scheduler re-checks answers that are still settling | `cac183f`, `c93ef64`, `712e8aa` |
+| Migration drift (6 nullability differences) | Migration `0002`: NOT NULL timestamps plus the study trial columns; `compare_metadata` reports no differences on SQLite | `7457a92` |
+| UI: the "Why?" panel didn't explain the signal | Overlay redesign: a collapsed pill (icon, level, reason) that expands into the checked claims with per-sample verdicts; light and dark tokens; a preview page | `a5a8307` |
+
+**Partly resolved.** Bug 4: sessions now last 24 hours (`2ec832e`) and the study harness has its
+own enrollment and consent flow (`278de3c`, `2f81c4c`), but the extension still has no onboarding
+or consent screen and no token refresh.
+
+**Still open.** `backendSignal.ts` still reports an invalid response body as "Backend returned
+200"; the request size limit still checks only `Content-Length`; the rate limiter is still per
+process; PostgreSQL and the row-level-security policies are unverified.
+
+**Documentation (section 6).** The earlier `docs/audit/` draft has been deleted (it stays in git
+history), the README has been rewritten (`1414b87`), and the master report now says the Phase 2
+work is committed.

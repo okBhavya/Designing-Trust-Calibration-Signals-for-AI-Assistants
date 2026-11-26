@@ -161,13 +161,15 @@ describe('bug 3: overlay events', () => {
     });
     expect(onEvent.mock.calls).toEqual([['signal_shown']]);
 
-    const button = (label: string) =>
-      Array.from(host.shadowRoot!.querySelectorAll('button')).find((element) => element.textContent === label)!;
-    await act(async () => button('Why?').click());
-    await act(async () => button('Hide details').click());
+    const pill = () => host.shadowRoot!.querySelector<HTMLButtonElement>('button.calibrai-pill')!;
+    await act(async () => pill().click());
+    expect(pill().getAttribute('aria-expanded')).toBe('true');
+    await act(async () => pill().click());
+    expect(pill().getAttribute('aria-expanded')).toBe('false');
     expect(onEvent.mock.calls).toEqual([['signal_shown'], ['explanation_opened']]);
 
-    await act(async () => button('Dismiss').click());
+    const dismiss = host.shadowRoot!.querySelector<HTMLButtonElement>('button[aria-label="Dismiss confidence signal"]')!;
+    await act(async () => dismiss.click());
     expect(onEvent.mock.calls.at(-1)).toEqual(['signal_dismissed']);
     expect(host.shadowRoot!.querySelector('.calibrai-overlay')).toBeNull();
   });
@@ -192,7 +194,7 @@ describe('bug 7: nullable score', () => {
         modelVersion: 'reliability-fixture-v1',
       });
     });
-    expect(host.shadowRoot!.textContent).toContain('Insufficient evidence');
+    expect(host.shadowRoot!.textContent).toContain('Not checkable');
   });
 });
 
