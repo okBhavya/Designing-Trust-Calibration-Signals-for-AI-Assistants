@@ -29,7 +29,8 @@ export default defineContentScript({
       for (const detected of detectedAnswers) {
         const sample = { text: detected.answer, streaming: detected.isStreaming };
         diagnostic('answer-state', { platform: detected.platform, streaming: detected.isStreaming });
-        if (detected.isStreaming || !completion.isStable(detected.container, sample)) {
+        // An empty answer is a placeholder the site has not filled yet (Gemini adds the element first).
+        if (!detected.answer || detected.isStreaming || !completion.isStable(detected.container, sample)) {
           settling = true;
           continue;
         }
