@@ -17,6 +17,7 @@ export default defineContentScript({
     const completion = new CompletionTracker();
     const duplicates = new DuplicateGuard();
 
+    diagnostic(`content-script-started ${location.hostname} build ${import.meta.env.WXT_BUILD_STAMP ?? 'dev'}`);
     const adapter = getAdapterForPage(new URL(location.href));
     if (!adapter) return;
     diagnostic('adapter-selected', { platform: adapter.platform });
@@ -28,8 +29,9 @@ export default defineContentScript({
       diagnostic('assistant-scan', { platform: adapter.platform, count: detectedAnswers.length });
       for (const detected of detectedAnswers) {
         const sample = { text: detected.answer, streaming: detected.isStreaming };
-        diagnostic('answer-state', { platform: detected.platform, streaming: detected.isStreaming });
-        if (detected.isStreaming || !completion.isStable(detected.container, sample)) {
+        diagnostic('answer-state', { platform: detected.platform, streaming: detected.isStreaming, length: detected.answer.length });
+        // An empty answer is a placeholder the site has not filled yet (Gemini adds the element first).
+        if (!detected.answer || detected.isStreaming || !completion.isStable(detected.container, sample)) {
           settling = true;
           continue;
         }
